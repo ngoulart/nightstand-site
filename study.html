@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NightStand: taking part in our study</title>
+<meta name="description" content="For people who received a study code: how to turn sharing on in NightStand, what is sent, and how to stop.">
+<meta name="theme-color" content="#151515">
+<meta property="og:site_name" content="NightStand">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:ital,wght@0,800;1,800;1,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/a/site.css?v=f7162f48e2">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body data-page="study" data-api="https://mtzppuynickaaeehukqs.supabase.co/functions/v1/motion">
+<header class="nav wrap">
+  <a class="brand" href="/" aria-label="NightStand, home"><span id="sticker"></span><span class="display">NightStand</span></a>
+  <nav class="links" id="links" aria-label="Pages">
+    <a href="/how">How it works</a>
+    <a href="/study" aria-current="page">Our study</a>
+    <a href="/privacy">Privacy</a>
+  </nav>
+  <span class="beta"><i class="dot"></i>In beta</span>
+  <button class="menu" type="button" aria-expanded="false" aria-controls="links">Menu</button>
+</header>
+
+<main>
+  <section class="hero inner">
+    <canvas class="halo" aria-hidden="true"></canvas>
+    <div class="hero-copy wrap">
+      <h1 class="display mega">
+        <span class="line" style="--i:0"><span>Taking part in</span></span>
+        <span class="line" style="--i:1"><span><span class="hl" id="paper">our study</span></span></span>
+      </h1>
+      <p class="lede">We study sleep and phone use. This page is for people who <b>received a study code</b>.</p>
+    </div>
+  </section>
+
+  <section class="block wrap" id="live" hidden>
+    <div class="title"><h2 class="display">The study right now</h2><span class="live-tag"><i class="dot"></i>Live</span></div>
+    <div class="counts">
+      <div class="card count"><span class="odo" data-key="phones_week" role="img"></span><p><b>phones sharing</b>in the last 7 days</p></div>
+      <div class="card count"><span class="odo" data-key="nights" role="img"></span><p><b>mornings</b>with a check-in</p></div>
+      <div class="card count"><span class="odo" data-key="tests" role="img"></span><p><b>tests</b>taken</p></div>
+    </div>
+    <p class="fine">Totals across everyone sharing with our study, refreshed every 30 seconds.</p>
+  </section>
+
+  <section class="block wrap">
+    <div class="title" data-reveal><h2 class="display">Turn sharing on</h2><span data-squiggle="mint"></span></div>
+    <div class="join">
+      <div>
+        <ol class="todo">
+          <li data-reveal style="--i:0"><span class="badge">1</span><span>Open the app's <b>Settings</b> and tap <b>Have a study code?</b></span></li>
+          <li data-reveal style="--i:1"><span class="badge">2</span><span><b>Type the code</b> you were given.</span></li>
+          <li data-reveal style="--i:2"><span class="badge">3</span><span>Turn on <b>Share my data with the study</b>.</span></li>
+        </ol>
+        <p class="sub" data-reveal style="margin:26px 0 0">Today then says <b style="color:var(--ink)">Updated and shared with our study</b>.</p>
+      </div>
+      <div class="card mock" data-reveal="pop" aria-hidden="true">
+        <span class="tag">Our study</span>
+        <p style="margin-top:14px;font-size:15px">If you take part in our study of sleep and phone use, type the code you were given and turn sharing on. Otherwise leave it off.</p>
+        <div class="field"></div>
+        <div class="row"><span>Share my data with the study</span><span class="switch"></span></div>
+        <div class="note-paper"><div class="torn" data-depth="5">
+          <p class="display">All set.</p>
+          <p>Updated and shared with our study. The app keeps recording on its own.</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block wrap">
+    <div class="title" data-reveal><h2 class="display">Two check-ins a day</h2><span data-squiggle="pink"></span></div>
+    <div class="pair">
+      <div class="card" data-reveal style="--i:0;--accent:var(--lilac)"><span class="badge" data-glyph="moon"></span>
+        <h3>Evening</h3>
+        <p><b>One 30-second test</b> before bed.</p></div>
+      <div class="card" data-reveal style="--i:1;--accent:var(--yellow)"><span class="badge" data-glyph="sun"></span>
+        <h3>Morning</h3>
+        <p><b>About 90 seconds</b>, with a 30-second test. Then you see how you slept. While sharing is on, the test is part of every check-in.</p></div>
+    </div>
+  </section>
+
+  <section class="block wrap">
+    <div class="title" data-reveal><h2 class="display">What leaves your phone</h2><span data-squiggle="sky"></span></div>
+    <div class="pair" style="grid-template-columns:1fr">
+      <div class="card" data-reveal style="--accent:var(--mint)"><span class="badge" data-glyph="check"></span>
+        <h3>Sent while sharing is on</h3>
+        <ul>
+          <li><span>How the phone moves, in <b>30-second summaries</b></span></li>
+          <li><span>The <b>sleep in Health</b>, if an Apple Watch wrote it</span></li>
+          <li><span>Your <b>check-ins</b> and <b>test results</b></span></li>
+          <li><span>When the phone <b>charges, locks and unlocks</b></span></li>
+          <li><span>Your phone's model, iOS version, app version, time zone and language setting</span></li>
+        </ul>
+        <p>Your location, the apps you use and what is on your screen are never sent. The <a href="/privacy">privacy policy</a> has the full list.</p></div>
+    </div>
+    <div class="facts" style="margin-top:14px">
+      <div class="card fact" data-reveal style="--i:0"><span class="badge" data-glyph="arrow"></span>
+        <p><b>Under your study code only.</b> The data go to our study's database over an encrypted connection. Only the study team can read them.</p></div>
+      <div class="card fact" data-reveal style="--i:1"><span class="badge" data-glyph="stop"></span>
+        <p><b>Stopping.</b> Taking part is voluntary. Turn the switch off and the app stops sending at once. Data sent before then may still be analysed.</p></div>
+      <div class="card fact wide" data-reveal><span class="badge" data-glyph="trash"></span>
+        <p><b>Deletion.</b> Write to <a href="mailto:nicolasgoulartdemoura@gmail.com">nicolasgoulartdemoura@gmail.com</a> with your study code and we delete what you shared.</p></div>
+    </div>
+  </section>
+
+  <section class="band-wrap wrap" data-reveal>
+    <div class="band torn" data-depth="10">
+      <div>
+        <h2 class="display">Questions?</h2>
+        <p>Write to us with <b>your study code</b>.</p>
+        <div class="cta"><a class="pill dark" href="mailto:nicolasgoulartdemoura@gmail.com">nicolasgoulartdemoura@gmail.com</a></div>
+      </div>
+      <span data-sticker="big" aria-hidden="true"></span>
+    </div>
+  </section>
+</main>
+
+<footer class="foot"><div class="wrap cols">
+  <div>
+    <a class="brand" href="/" aria-label="NightStand, home"><span data-sticker="sticker"></span><span class="display">NightStand</span></a>
+    <p class="note">NightStand is not a medical device. Its sleep estimates and test scores are not a diagnosis.</p>
+  </div>
+  <div><h4>The app</h4><ul><li><a href="/">Home</a></li><li><a href="/how">How it works</a></li></ul></div>
+  <div><h4>Your data</h4><ul><li><a href="/study">Our study</a></li><li><a href="/privacy">Privacy policy</a></li></ul></div>
+  <div><h4>Contact</h4><ul><li><a href="mailto:nicolasgoulartdemoura@gmail.com">nicolasgoulartdemoura@gmail.com</a></li></ul></div>
+</div></footer>
+<script>
+// The look, drawn once: the film grain (the app's tile: 5200 light and dark
+// specks at low alpha on 180 pt, seeded so every load looks the same), the
+// torn edges of the header paper, the moon sticker and the section squiggle.
+const C = {page: "#151515", card: "#212121", raised: "#2c2c2c", ink: "#fafaf9", gray: "#a3a3a3", dim: "#6e6e6e",
+           yellow: "#f6f37a", pink: "#f4a6ee", mint: "#86e5a8", sky: "#aae5ff", blue: "#3d9bff", none: "#353535", battery: "#575757", rest: "#6f8fb3"};
+const ACCENTS = [C.yellow, C.pink, C.mint, C.sky];
+function seeded(a) {
+  return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function squiggle(color) {
+  return `<svg class="squiggle" viewBox="0 0 22 12" style="stroke:${color}" aria-hidden="true"><path d="M0 6L7 .6L9.9 5L22 .2M4 12L11 7.4L13.6 11L22 6.6"/></svg>`;
+}
+(function () {
+  const side = 180, cv = document.createElement("canvas"), rnd = seeded(7);
+  cv.width = cv.height = side * 2;
+  const ctx = cv.getContext("2d");
+  ctx.scale(2, 2);
+  for (let k = 0; k < 5200; k++) {
+    const x = rnd() * side, y = rnd() * side, d = 0.5 + rnd() * 0.7, a = 0.03 + rnd() * 0.09;
+    ctx.fillStyle = (rnd() < 1 / 3 ? "rgba(0,0,0," : "rgba(255,255,255,") + a.toFixed(3) + ")";
+    ctx.fillRect(x, y, d, d);
+  }
+  document.documentElement.style.setProperty("--grain", `url(${cv.toDataURL("image/png")})`);
+
+  const paper = document.getElementById("paper");
+  const tear = () => {
+    const w = paper.offsetWidth, h = paper.offsetHeight, depth = 6, r = seeded(11), pts = [[0, depth / 2]];
+    let x = 0;
+    while (x < w) { x = Math.min(w, x + 6 + r() * 8); pts.push([x, r() * depth]); }
+    pts.push([w, h - depth / 2]);
+    while (x > 0) { x = Math.max(0, x - 6 - r() * 8); pts.push([x, h - r() * depth]); }
+    paper.style.clipPath = `polygon(${pts.map(([a, b]) => `${a.toFixed(1)}px ${b.toFixed(1)}px`).join(",")})`;
+  };
+  new ResizeObserver(tear).observe(paper);
+
+  // Die-cut sticker: a wobbly seven-lobed flower in yellow with a dark
+  // outline on a white border, a crescent moon and two z's.
+  const blob = (R) => {
+    const r = R / 1.1;
+    let d = "";
+    for (let k = 0; k <= 120; k++) {
+      const a = k / 120 * 2 * Math.PI, rr = r * (1 + 0.1 * Math.sin(7 * a));
+      d += (k ? "L" : "M") + (50 + rr * Math.cos(a)).toFixed(2) + " " + (50 + rr * Math.sin(a)).toFixed(2);
+    }
+    return d + "Z";
+  };
+  const sticker = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">` +
+    `<defs><mask id="moon"><rect width="100" height="100" fill="#fff"/><circle cx="56" cy="44" r="14" fill="#000"/></mask></defs>` +
+    `<path d="${blob(50)}" fill="#fff" fill-opacity=".94"/><path d="${blob(43.9)}" fill="${C.yellow}" stroke="${C.page}" stroke-width="4.4"/>` +
+    `<circle cx="45" cy="56" r="17" fill="${C.page}" mask="url(#moon)"/>` +
+    `<text x="59" y="44" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="${C.page}">z</text>` +
+    `<text x="69" y="33" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="11" fill="${C.page}">z</text></svg>`;
+  document.getElementById("sticker").innerHTML = sticker.replace("<svg ", `<svg class="sticker" aria-hidden="true" `);
+  document.querySelector("link[rel=icon]").href = "data:image/svg+xml," + encodeURIComponent(sticker);
+})();
+</script>
+<script src="/a/site.js?v=62a0fdb6eb"></script>
+</body>
+</html>

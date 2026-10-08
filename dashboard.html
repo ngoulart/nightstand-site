@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NightStand live</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* The look of the app (Theme.swift): a near-black grainy
+     page, heavy uppercase titles with a hand-drawn squiggle, pastel accents on
+     dark cards, capsule controls, torn paper for the message to read first. */
+  :root { --page:#151515; --card:#212121; --raised:#2c2c2c; --edge:rgba(255,255,255,.09);
+          --ink:#fafaf9; --gray:#a3a3a3; --dim:#6e6e6e; --paper-ink:#151515;
+          --yellow:#f6f37a; --pink:#f4a6ee; --mint:#86e5a8; --sky:#aae5ff; --blue:#3d9bff;
+          --none:#353535; --battery:#575757; --rest:#6f8fb3; --grain:none; color-scheme:dark; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--grain) 0 0/180px 180px repeat, var(--page); color:var(--ink);
+         font:15px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+         -webkit-font-smoothing:antialiased; }
+  .page { max-width:1080px; margin:0 auto; padding:22px 24px 60px; }
+  .display { font-weight:900; text-transform:uppercase; letter-spacing:-.035em; line-height:1.02; margin:0; }
+  .squiggle { width:22px; height:12px; overflow:visible; flex:none; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+  .top { display:flex; align-items:center; justify-content:space-between; margin:0 4px 14px; }
+  .top .display { font-size:22px; }
+  .sticker { width:40px; height:40px; transform:rotate(12deg); filter:drop-shadow(0 3px 5px rgba(0,0,0,.45)); }
+  .paper-wrap { margin:4px 4px 26px; transform:rotate(-1.2deg); filter:drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
+  .paper { background:var(--grain) 0 0/180px 180px repeat, var(--yellow); background-blend-mode:multiply;
+           color:var(--paper-ink); padding:24px 24px 22px; }
+  .paper h1 { font-size:30px; margin:0 0 10px; }
+  .paper p { margin:0; font-size:15px; font-weight:500; color:rgba(21,21,21,.75); max-width:860px; }
+  .paper p b { color:var(--paper-ink); }
+  .card { background:var(--card); border:1px solid var(--edge); border-radius:22px; }
+  .controls { padding:14px 18px; margin-bottom:14px; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; font-size:13px; color:var(--gray); }
+  .bar + .bar { border-top:1px solid var(--edge); margin-top:12px; padding-top:12px; }
+  .bar[hidden] { display:none; }
+  .bar .live { display:inline-flex; align-items:center; gap:7px; font-weight:800; color:var(--ink); }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 3px rgba(134,229,168,.2); display:inline-block; }
+  .dot.off { background:var(--pink); box-shadow:0 0 0 3px rgba(244,166,238,.2); }
+  .dot.fixed { background:var(--sky); box-shadow:0 0 0 3px rgba(170,229,255,.2); }
+  .bar label { display:inline-flex; flex-wrap:wrap; align-items:center; gap:8px; max-width:100%; }
+  .bar b { color:var(--ink); }
+  .bar input[type=range] { width:140px; accent-color:var(--mint); }
+  .seg { display:inline-flex; flex-wrap:wrap; gap:2px; padding:3px; background:var(--raised); border-radius:18px; max-width:100%; }
+  .seg button { font:inherit; font-size:13px; font-weight:800; color:var(--gray); background:none; border:0; border-radius:999px; padding:5px 11px; cursor:pointer; white-space:nowrap; }
+  .seg button:hover { color:var(--ink); }
+  .seg button.on { background:var(--mint); color:var(--paper-ink); }
+  .bar input[type=datetime-local] { font:inherit; font-size:13px; color:var(--ink); background:var(--raised); border:1px solid var(--edge); border-radius:12px; padding:5px 9px; }
+  .bar .nav { display:inline-flex; gap:6px; }
+  .pill { font:inherit; font-size:13px; font-weight:700; color:var(--ink); background:var(--raised); border:1px solid var(--edge); border-radius:999px; padding:5px 14px; cursor:pointer; }
+  .pill:hover:not(:disabled) { background:#363636; }
+  .pill:disabled { color:var(--dim); cursor:default; }
+  .toggle { cursor:pointer; color:var(--ink); }
+  .toggle input { position:absolute; opacity:0; width:1px; height:1px; }
+  .toggle .sw { width:38px; height:22px; border-radius:999px; background:var(--raised); border:1px solid var(--edge); position:relative; flex:none; transition:background .15s; }
+  .toggle .sw::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:var(--gray); transition:transform .15s, background .15s; }
+  .toggle input:checked + .sw { background:var(--yellow); border-color:var(--yellow); }
+  .toggle input:checked + .sw::after { transform:translateX(16px); background:#fff; }
+  .toggle input:focus-visible + .sw { outline:2px solid var(--sky); outline-offset:2px; }
+  .bar .hint { flex-basis:100%; font-size:12px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:22px; }
+  .stat { padding:14px 18px 16px; }
+  .stat .k { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:-.2px; }
+  .stat .v { font-size:38px; font-weight:900; letter-spacing:-.035em; line-height:1.1; margin:6px 0 2px; font-variant-numeric:tabular-nums; }
+  .stat .v.warn { color:var(--pink); }
+  .stat .d { font-size:12.5px; color:var(--gray); }
+  .legend { font-size:12.5px; color:var(--gray); margin:0 4px 14px; }
+  .legend .t { display:block; margin-bottom:8px; }
+  .legend .rows { display:flex; flex-wrap:wrap; gap:8px 32px; }
+  .legend .row { display:flex; flex-wrap:wrap; gap:4px 14px; align-items:center; }
+  .legend .row .lab { font-weight:800; color:var(--ink); min-width:68px; }
+  .legend .row span { white-space:nowrap; display:inline-flex; align-items:center; }
+  .legend .row span::before { content:""; display:inline-block; width:14px; height:9px; border-radius:999px; margin-right:6px; }
+  .legend .row .lab::before { display:none; }
+  .legend .row .mv::before { background:var(--pink); } .legend .row .st::before { background:var(--sky); } .legend .row .nd::before { background:var(--none); }
+  .legend .row .sl::before { background:var(--blue); } .legend .row .aw::before { background:var(--yellow); } .legend .row .ib::before { background:var(--dim); }
+  .legend .row .pl::before { background:var(--mint); } .legend .row .ob::before { background:var(--battery); }
+  .legend .row .ph::before { background:var(--rest); } .legend .row .in::before { background:var(--pink); }
+  .legend .row .ci::before { width:3px; height:12px; border-radius:1px; background:var(--yellow); }
+  .legend .row .tt::before, .totals .dm { width:8px; height:8px; border-radius:1px; background:var(--sky); transform:rotate(45deg); display:inline-block; }
+  .legend .row .up::before, .legend .row .upbg::before { width:0; height:0; border-radius:0; background:none; border-left:6px solid transparent; border-right:6px solid transparent; border-top:11px solid var(--mint); }
+  .legend .row .upbg::before { border-top-color:var(--gray); }
+  .legend .row .fq::before { background:none; width:12px; height:12px; content:"\2715"; color:var(--pink); font-weight:900; font-size:12px; line-height:12px; text-align:center; }
+  .lane { padding:16px 18px 14px; margin-bottom:12px; }
+  .lane .head { display:flex; flex-wrap:wrap; gap:6px 18px; align-items:center; margin-bottom:10px; }
+  .lane .pid { display:inline-flex; align-items:center; gap:8px; font-size:20px; font-variant-numeric:tabular-nums; }
+  .lane .meta { font-size:13px; color:var(--gray); }
+  .lane .meta b { color:var(--ink); }
+  .lane .meta .warn { color:var(--pink); font-weight:700; }
+  .lane .meta .ok { color:var(--mint); font-weight:700; }
+  .lane .head .remind { margin-left:auto; }
+  .strip { position:relative; }
+  .strip svg { width:100%; display:block; touch-action:pan-y; cursor:crosshair; }
+  .axis { position:relative; height:16px; font-size:11px; color:var(--gray); }
+  .axis span { position:absolute; top:0; transform:translateX(-50%); white-space:nowrap; }
+  .axis span.now { transform:translateX(-100%); color:var(--ink); font-weight:800; }
+  .sel { position:absolute; top:0; bottom:16px; background:rgba(170,229,255,.14); border-left:1px solid var(--sky); border-right:1px solid var(--sky); display:none; pointer-events:none; }
+  .tip { position:absolute; pointer-events:none; background:var(--raised); color:var(--ink); border:1px solid var(--edge); font-size:12px; padding:6px 10px; border-radius:10px; box-shadow:0 6px 16px rgba(0,0,0,.45); transform:translate(-50%,-125%); white-space:nowrap; display:none; }
+  .totals { display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12.5px; color:var(--gray); margin-top:8px; }
+  .totals span { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+  .totals b { color:var(--ink); }
+  .totals .sw { width:14px; height:9px; border-radius:999px; display:inline-block; }
+  .nights-wrap { overflow-x:auto; margin-top:10px; }
+  .nights { border-collapse:collapse; font-size:12.5px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .nights th { text-align:left; font-weight:700; color:var(--gray); padding:0 22px 5px 0; border-bottom:1px solid var(--edge); }
+  .nights td { padding:5px 22px 0 0; color:var(--ink); }
+  .nights td.muted { color:var(--gray); }
+  .empty { color:var(--gray); padding:30px; text-align:center; border:1px dashed var(--edge); border-radius:22px; }
+  .err, .note { position:relative; padding:10px 12px 10px 18px; font-size:13.5px; color:var(--ink); border-radius:12px; }
+  .err::before, .note::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:2px; }
+  .err { background:rgba(244,166,238,.12); margin:0 0 14px; } .err::before { background:var(--pink); }
+  .note { background:rgba(170,229,255,.12); margin:18px 0 0; font-size:13px; } .note::before { background:var(--sky); }
+  code { font-family:ui-monospace,Menlo,monospace; font-size:.92em; }
+  @media (max-width:600px) {
+    .page { padding:16px 16px 48px; }
+    .paper { padding:20px 18px 18px; }
+    .paper h1 { font-size:23px; }
+    .controls, .stat, .lane { padding-left:14px; padding-right:14px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top"><span class="display">NightStand</span><span id="sticker"></span></div>
+  <div class="paper-wrap"><div class="paper" id="paper">
+    <h1 class="display">Who is recording right now, and what the chosen hours looked like</h1>
+    <p>One lane per phone. Each bin of the phone's movement (1, 5 or 10 minutes, chosen below) is <b>moving</b>, <b>still</b>, or <b>not recorded</b>; below it whether the phone was plugged in and the night, from Health or from the phone at rest by the app's rule: still for 30 minutes or more, and a use of up to 5 minutes between two such rests is an interruption of one night. Bins reach the server only when the app runs, so a lane ends at that phone's last upload.</p>
+  </div></div>
+
+  <div class="card controls">
+    <div class="bar">
+      <span class="live"><span class="dot" id="dot"></span><span id="livetxt">connecting</span></span>
+      <span id="refreshed"></span>
+      <label>Still threshold <input type="range" id="thr" min="0.001" max="0.03" step="0.001" value="0.005"> <b id="thrv">0.005 g</b></label>
+      <label class="toggle"><input type="checkbox" id="hidesilent" checked><span class="sw"></span>hide phones silent for 3+ days</label>
+    </div>
+    <div class="bar">
+      <label>Window <span class="seg" id="hours"></span></label>
+      <label>Interval <span class="seg" id="bin"></span></label>
+      <label>from <input type="datetime-local" id="from" step="60"></label>
+      <label>to <input type="datetime-local" id="to" step="60"></label>
+      <span class="nav"><button class="pill" id="earlier" title="Shift the window back by its own length">&#8592; earlier</button><button class="pill" id="later" title="Shift the window forward by its own length">later &#8594;</button><button class="pill" id="tonow" title="End the window now and keep it refreshing">now</button></span>
+      <span class="hint">Any window up to 14 days: pick a preset, edit the dates, step with the arrows, or drag across a lane with the mouse to zoom into that range. The address carries the window, so it can be bookmarked or sent.</span>
+    </div>
+    <div class="bar" id="pager" hidden>
+      <span id="pagetxt"></span>
+      <span class="nav"><button class="pill" id="prevpage" title="The phones before these, by lane number">&#8592; previous</button><button class="pill" id="nextpage" title="The phones after these, by lane number">next &#8594;</button></span>
+      <label>Per page <span class="seg" id="per"></span></label>
+      <span class="hint" id="pagehint">The figures below count the phones on this page.</span>
+    </div>
+  </div>
+
+  <div id="err"></div>
+  <div class="stats" id="stats"></div>
+
+  <div class="legend"><span class="t">Three tracks per phone on one clock. Above the movement bar, a triangle marks each upload, a cross a force-quit and a diamond a 1-minute test; a yellow line runs through the tracks at each morning check-in. The charging track takes its events from phones that opted into the background keep-alive and the battery state of every upload from all of them.</span>
+    <div class="rows">
+      <div class="row"><span class="lab">Movement</span><span class="mv">moving</span><span class="st">still</span><span class="nd">no data</span></div>
+      <div class="row"><span class="lab">Charging</span><span class="pl">plugged in</span><span class="ob">on battery</span><span class="nd">unknown</span></div>
+      <div class="row"><span class="lab">Sleep</span><span class="sl">asleep</span><span class="aw">awake in bed</span><span class="ib">in bed</span><span class="ph">at rest, phone rule</span><span class="in">interruption</span></div>
+      <div class="row"><span class="lab">Marks</span><span class="up">upload after opening the app</span><span class="upbg">upload by itself</span><span class="fq">force-quit</span><span class="ci">morning check-in</span><span class="tt">test</span></div>
+    </div></div>
+  <div id="lanes"></div>
+
+  <div class="note"><b>The phone rule.</b> The page applies the app's rule to each lane's own bins, night by night (6 pm to noon on the phone's clock): a rest is 30 minutes or more of still bins, a minute of movement inside it is ignored, two rests no more than 5 minutes apart with every bin between them recorded are one night, and the night with the most rest counts from two hours up. Efficiency is the rest over the rest plus the interruptions. It needs the 1-minute interval, follows the still threshold above, and reads only the part of a night inside the window. <b>Reading a lane.</b> A recording is armed for 12 hours at every open, so a phone that opened the app at bedtime has a lane that runs to the morning once it opens again. Gray at the right end is normal until the next open or background refresh; gray for a whole night means the recording was not armed or the upload has not come in yet.</div>
+</div>
+
+<script>
+// The look, drawn once: the film grain (the app's tile: 5200 light and dark
+// specks at low alpha on 180 pt, seeded so every load looks the same), the
+// torn edges of the header paper, the moon sticker and the section squiggle.
+const C = {page: "#151515", card: "#212121", raised: "#2c2c2c", ink: "#fafaf9", gray: "#a3a3a3", dim: "#6e6e6e",
+           yellow: "#f6f37a", pink: "#f4a6ee", mint: "#86e5a8", sky: "#aae5ff", blue: "#3d9bff", none: "#353535", battery: "#575757", rest: "#6f8fb3"};
+const ACCENTS = [C.yellow, C.pink, C.mint, C.sky];
+function seeded(a) {
+  return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function squiggle(color) {
+  return `<svg class="squiggle" viewBox="0 0 22 12" style="stroke:${color}" aria-hidden="true"><path d="M0 6L7 .6L9.9 5L22 .2M4 12L11 7.4L13.6 11L22 6.6"/></svg>`;
+}
+(function () {
+  const side = 180, cv = document.createElement("canvas"), rnd = seeded(7);
+  cv.width = cv.height = side * 2;
+  const ctx = cv.getContext("2d");
+  ctx.scale(2, 2);
+  for (let k = 0; k < 5200; k++) {
+    const x = rnd() * side, y = rnd() * side, d = 0.5 + rnd() * 0.7, a = 0.03 + rnd() * 0.09;
+    ctx.fillStyle = (rnd() < 1 / 3 ? "rgba(0,0,0," : "rgba(255,255,255,") + a.toFixed(3) + ")";
+    ctx.fillRect(x, y, d, d);
+  }
+  document.documentElement.style.setProperty("--grain", `url(${cv.toDataURL("image/png")})`);
+
+  const paper = document.getElementById("paper");
+  const tear = () => {
+    const w = paper.offsetWidth, h = paper.offsetHeight, depth = 6, r = seeded(11), pts = [[0, depth / 2]];
+    let x = 0;
+    while (x < w) { x = Math.min(w, x + 6 + r() * 8); pts.push([x, r() * depth]); }
+    pts.push([w, h - depth / 2]);
+    while (x > 0) { x = Math.max(0, x - 6 - r() * 8); pts.push([x, h - r() * depth]); }
+    paper.style.clipPath = `polygon(${pts.map(([a, b]) => `${a.toFixed(1)}px ${b.toFixed(1)}px`).join(",")})`;
+  };
+  new ResizeObserver(tear).observe(paper);
+
+  // Die-cut sticker: a wobbly seven-lobed flower in yellow with a dark
+  // outline on a white border, a crescent moon and two z's.
+  const blob = (R) => {
+    const r = R / 1.1;
+    let d = "";
+    for (let k = 0; k <= 120; k++) {
+      const a = k / 120 * 2 * Math.PI, rr = r * (1 + 0.1 * Math.sin(7 * a));
+      d += (k ? "L" : "M") + (50 + rr * Math.cos(a)).toFixed(2) + " " + (50 + rr * Math.sin(a)).toFixed(2);
+    }
+    return d + "Z";
+  };
+  const sticker = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">` +
+    `<defs><mask id="moon"><rect width="100" height="100" fill="#fff"/><circle cx="56" cy="44" r="14" fill="#000"/></mask></defs>` +
+    `<path d="${blob(50)}" fill="#fff" fill-opacity=".94"/><path d="${blob(43.9)}" fill="${C.yellow}" stroke="${C.page}" stroke-width="4.4"/>` +
+    `<circle cx="45" cy="56" r="17" fill="${C.page}" mask="url(#moon)"/>` +
+    `<text x="59" y="44" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="${C.page}">z</text>` +
+    `<text x="69" y="33" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="11" fill="${C.page}">z</text></svg>`;
+  document.getElementById("sticker").innerHTML = sticker.replace("<svg ", `<svg class="sticker" aria-hidden="true" `);
+  document.querySelector("link[rel=icon]").href = "data:image/svg+xml," + encodeURIComponent(sticker);
+})();
+</script>
+
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const API = "https://mtzppuynickaaeehukqs.supabase.co/functions/v1/motion";
+  let TOKEN = params.get("k") || "";
+  try {
+    if (!TOKEN) TOKEN = localStorage.getItem("nsAdminKey") || "";
+    if (!TOKEN) TOKEN = (prompt("Dashboard key (MOTION_ADMIN_KEY in server/.env)") || "").trim();
+    if (TOKEN) localStorage.setItem("nsAdminKey", TOKEN);
+  } catch (e) {}
+  const PRESETS = ["1", "3", "6", "12", "24", "48", "72", "168"];
+  const BINS = [60, 300, 600];   // seconds per movement bin on offer
+  const PER_PAGE = [10, 25, 50];   // phones per page on offer
+  const MAX_SPAN = 14 * 86400, MIN_SPAN = 300;   // what the server serves; what a drag can select
+  const $ = (id) => document.getElementById(id);
+  let data = null, BIN = 30, countdown = 30, failed = false, drag = null, cls = new Map();
+  const nowS = () => Math.floor(Date.now() / 1000);
+  const recall = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const remember = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  // A lane shows a six-digit number, not the participant's ID. The server
+  // sends it as `lane` (HMAC of the pid under the upload token, see
+  // laneLabels in the function), so the number is the same in every browser
+  // and the page never holds the upload token.
+  let labels = new Map();
+  function assignLabels(phones) {
+    const next = new Map();
+    for (const p of phones) next.set(p.pid, p.lane);
+    return next;
+  }
+
+  // The window. Live: the last `hours` hours ending now, refreshed on a timer.
+  // Fixed: an explicit [from, to] in epoch seconds, set from the date fields,
+  // the arrows, a drag across a lane, or the address (?from=&to=, as
+  // YYYY-MM-DDTHH:MM local or epoch seconds), loaded once.
+  // The phones come a page at a time, in lane order: `per` of them, the last
+  // choice remembered, and `page` from 1.
+  const view = {live: true, hours: 1, from: 0, to: 0, bin: 60, per: 25, page: 1};
+  const parseWhen = (s) => {
+    if (!s) return null;
+    const n = Number(s), ms = Number.isFinite(n) ? n * 1000 : Date.parse(s);
+    return Number.isFinite(ms) ? Math.floor(ms / 1000) : null;
+  };
+  {
+    const f = parseWhen(params.get("from")), t = parseWhen(params.get("to"));
+    const h = parseFloat(params.get("hours")) || parseFloat(recall("nsHours")) || 1;
+    if (f !== null) {
+      view.to = Math.min(t === null ? nowS() : t, nowS()); view.from = f;
+      view.live = !(view.to > view.from);
+    }
+    if (view.live) view.hours = Math.min(Math.max(h, MIN_SPAN / 3600), MAX_SPAN / 3600);
+    // The bin length: from the address, else the last choice, else a minute.
+    const b = parseInt(params.get("bin") || recall("nsBin") || "", 10);
+    if (BINS.includes(b)) view.bin = b;
+    const n = parseInt(recall("nsPer") || "", 10);
+    if (PER_PAGE.includes(n)) view.per = n;
+  }
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const fmtTime = (t) => new Date(t * 1000).toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+  const fmtDT = (t) => new Date(t * 1000).toLocaleString([], {month: "short", day: "numeric", hour: "numeric", minute: "2-digit"});
+  const fmtClock = (t) => { const d = new Date(t * 1000); return pad(d.getHours()) + ":" + pad(d.getMinutes()); };
+  const fmtDay = (t) => new Date(t * 1000).toLocaleDateString([], {month: "short", day: "numeric"});
+  const toInput = (t) => { const d = new Date(t * 1000); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  const hoursText = (h) => h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${+h.toFixed(2)} h` : `${+(h / 24).toFixed(1)} days`;
+  const ago = (t, now) => {
+    const s = Math.max(0, now - t);
+    if (s < 90) return "just now";
+    if (s < 3600) return Math.round(s / 60) + " min ago";
+    if (s < 48 * 3600) return (s / 3600).toFixed(1).replace(/\.0$/, "") + " h ago";
+    return Math.round(s / 86400) + " days ago";
+  };
+  const mins = (n) => {
+    const m = Math.round(n * BIN / 60);
+    return m >= 2880 ? +(m / 1440).toFixed(1) + " days" : m >= 90 ? (m / 60).toFixed(1).replace(/\.0$/, "") + " h" : m + " min";
+  };
+  const spanS = () => view.live ? Math.round(view.hours * 3600) : view.to - view.from;
+  const binText = (s) => s < 60 ? `${s}-second` : `${s / 60}-minute`;
+  const pollSeconds = () => !view.live ? 0 : view.hours <= 1 ? 30 : view.hours <= 12 ? 60 : view.hours <= 24 ? 120 : 300;
+
+  // The app's night clock (ios/Shared/NightClock.swift) on the phone's own
+  // time zone: a night is named by the local date of its evening, the most
+  // recent one to have reached its morning is `last`, and its check-in is
+  // open from 04:00 to 18:00. The streak counts rated nights back from
+  // `last`, or from the night before while that check-in is still open.
+  const localParts = (t, tz) => {
+    const f = new Intl.DateTimeFormat("en-CA", {timeZone: tz || undefined, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23"});
+    const o = Object.fromEntries(f.formatToParts(new Date(t * 1000)).map(x => [x.type, x.value]));
+    return {day: `${o.year}-${o.month}-${o.day}`, hour: +o.hour};
+  };
+  const shiftDay = (key, days) => new Date(Date.parse(key + "T00:00:00Z") + days * 86400000).toISOString().slice(0, 10);
+  const nightClock = (tz, now) => {
+    const hour = localParts(now, tz).hour;
+    return {last: shiftDay(localParts(now - 4 * 3600, tz).day, -1), open: hour >= 4 && hour < 18};
+  };
+  const streak = (nights, clock) => {
+    const rated = new Set(nights);
+    let night = clock.last, n = 0;
+    if (!rated.has(night) && clock.open) night = shiftDay(night, -1);
+    while (rated.has(night)) { n++; night = shiftDay(night, -1); }
+    return n;
+  };
+  const hm = (m) => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h} h ${r} min` : `${h} h`) : `${r} min`; };
+  const signed = (m) => (m > 0 ? "+" : m < 0 ? "\u2212" : "") + hm(Math.abs(m));
+  const nightLabel = (key) => {
+    const a = new Date(key + "T12:00:00"), b = new Date(a.getTime() + 86400000), day = {month: "short", day: "numeric"};
+    return `${a.toLocaleDateString([], day)} to ${a.getMonth() === b.getMonth() ? b.getDate() : b.toLocaleDateString([], day)}`;
+  };
+  const TEST_NAMES = {pvt: "reaction", dsst: "symbols", nback2: "2-back", gonogo: "go / no-go", simon: "sequence", stroop: "colors"};
+  const testScore = (t) => t.score == null ? "no score" : t.test === "pvt" ? `${Math.round(t.score)} ms` : t.test === "dsst" || t.test === "stroop" ? `${Math.round(t.score)} right` : t.test === "simon" ? `${Math.round(t.score)} pads` : `${Math.round(t.score)}%`;
+
+  // Capsule segments, the selected option filled in mint; a window that is
+  // not a preset leaves every window segment empty.
+  const PRESET_LABELS = {1: "1 h", 3: "3 h", 6: "6 h", 12: "12 h", 24: "24 h", 48: "2 days", 72: "3 days", 168: "7 days"};
+  function buildSeg(id, options, onPick) {
+    $(id).innerHTML = options.map(([v, label]) => `<button type="button" data-v="${v}">${label}</button>`).join("");
+    $(id).addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (b) onPick(b.dataset.v); });
+  }
+  const setSeg = (id, v) => $(id).querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+
+  function syncControls() {
+    const to = view.live ? nowS() : view.to, from = to - spanS();
+    setSeg("hours", view.live && PRESETS.includes(String(view.hours)) ? String(view.hours) : "");
+    setSeg("bin", String(view.bin));
+    $("from").value = toInput(from); $("to").value = toInput(to);
+    $("later").disabled = view.live; $("tonow").disabled = view.live;
+    // The address carries the window, so a view can be bookmarked or sent.
+    const q = new URLSearchParams(location.search);
+    q.delete("hours"); q.delete("from"); q.delete("to"); q.delete("bin");
+    if (view.live) q.set("hours", String(+view.hours.toFixed(4))); else { q.set("from", toInput(view.from)); q.set("to", toInput(view.to)); }
+    q.set("bin", String(view.bin));
+    history.replaceState(null, "", location.pathname + "?" + q.toString());
+  }
+  // A new window starts at the first page: with silent phones hidden, the
+  // window decides which phones there are.
+  function setLive(hours) { view.live = true; view.hours = hours; view.page = 1; syncControls(); load(); }
+  function setFixed(from, to) {
+    to = Math.min(Math.floor(to), nowS());
+    from = Math.floor(from);
+    if (to - from < MIN_SPAN) from = to - MIN_SPAN;
+    if (to - from > MAX_SPAN) from = to - MAX_SPAN;
+    view.live = false; view.from = from; view.to = to; view.page = 1; syncControls(); load();
+  }
+  function shift(direction) {
+    const s = spanS(), to0 = view.live ? nowS() : view.to;
+    const to = direction < 0 ? to0 - s : Math.min(to0 + s, nowS());
+    setFixed(to - s, to);
+  }
+
+  function queryString() {
+    const q = new URLSearchParams({k: TOKEN});
+    if (view.live) q.set("hours", String(+view.hours.toFixed(4)));
+    else { q.set("from", String(view.from)); q.set("to", String(view.to)); }
+    q.set("bin", String(view.bin));
+    // One page of phones, chosen by the server so every page is full: without
+    // the test phones and the simulators (real), in lane order, and without
+    // the silent ones while that switch is on.
+    q.set("per", String(view.per)); q.set("page", String(view.page));
+    q.set("real", "1"); q.set("order", "lane");
+    if ($("hidesilent").checked) q.set("silent", "0");
+    return q.toString();
+  }
+  async function load() {
+    const req = queryString();
+    try {
+      const r = await fetch(`${API}/live?${req}`, {cache: "no-store"});
+      if (!r.ok) throw new Error(`server answered ${r.status}`);
+      const d = await r.json();
+      const numbered = assignLabels(d.phones);
+      if (req !== queryString()) return;   // the window, the page or a filter changed while this answer was in flight
+      // Fewer phones than when this page was asked for: show the last page there is.
+      const pages = Math.max(1, Math.ceil(d.total / d.per));
+      if (view.page > pages) { view.page = pages; return load(); }
+      data = d; labels = numbered; failed = false;
+      // A server from before the range option answers with the last hours.
+      const ranged = data.from !== undefined;
+      if (!ranged) { data.from = data.now - data.hours * 3600; data.to = data.now; }
+      BIN = data.bin_seconds || 30;
+      $("dot").className = "dot" + (view.live ? "" : " fixed"); $("livetxt").textContent = view.live ? "live" : "fixed window";
+      const notes = [];
+      if (!ranged && !view.live) notes.push(`This server predates window ranges and answered with the last ${hoursText(data.hours)} instead; deploy the current function and migration.`);
+      if (BIN !== view.bin) notes.push(`This server ignores the interval and answered in ${binText(BIN)} bins; deploy the current function and migration.`);
+      $("err").innerHTML = notes.map(n => `<div class="err">${n}</div>`).join("");
+      $("refreshed").textContent = (view.live ? "refreshed " : "loaded ") + new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit", second: "2-digit"});
+      render();
+    } catch (e) {
+      failed = true;
+      $("dot").className = "dot off"; $("livetxt").textContent = "not reachable";
+      $("err").innerHTML = `<div class="err">Could not load <code>${API}/live</code>: ${e.message}. The page keeps retrying. Wrong key? Reload with ?k=&lt;MOTION_ADMIN_KEY&gt; in the address to replace the remembered one.</div>`;
+    }
+    countdown = pollSeconds() || 30;
+  }
+
+  // The app's rule for a night without a watch (ios/NomoMotion/NightFeedback.swift)
+  // on the lane's own bins. A run of still bins survives a minute of
+  // movement and ends at any missing bin; runs of 30 minutes or more are
+  // rests; two rests no more than 5 minutes apart, with every bin between
+  // them recorded, are one night with an interruption. Per night (18:00 to
+  // noon on the phone's clock) the chain with the most rest wins, from two
+  // hours of rest up. Bins longer than a minute cannot carry it.
+  const RULE = {restS: 30 * 60, bridgeS: 5 * 60, breakS: 60, minimumS: 120 * 60, maxBinS: 60};
+  const nightKeys = new Map();
+  // The night each slot belongs to (the local date of its evening), or null from noon to 18:00.
+  function nightOfSlots(tz, since, n) {
+    const id = `${tz}|${since}|${n}|${BIN}`;
+    if (nightKeys.has(id)) return nightKeys.get(id);
+    const out = new Array(n).fill(null), byQuarter = new Map();
+    for (let i = 0; i < n; i++) {
+      const q = Math.floor((since + i * BIN) / 900);   // quarter hours, for zones offset by 30 or 45 minutes
+      if (!byQuarter.has(q)) {
+        const {day, hour} = localParts(q * 900, tz);
+        byQuarter.set(q, hour >= 18 ? day : hour < 12 ? shiftDay(day, -1) : null);
+      }
+      out[i] = byQuarter.get(q);
+    }
+    if (nightKeys.size > 200) nightKeys.clear();
+    nightKeys.set(id, out);
+    return out;
+  }
+  function phoneNights(cat, n, since, tz) {
+    if (BIN > RULE.maxBinS) return null;
+    const night = nightOfSlots(tz, since, n), breakBins = Math.floor(RULE.breakS / BIN);
+    const runs = [];
+    let cur = null, moving = 0, gap = false, key = null;
+    const close = () => { if (cur) runs.push(cur); cur = null; moving = 0; };
+    for (let i = 0; i < n; i++) {
+      if (night[i] !== key) { close(); key = night[i]; gap = true; }
+      if (key === null) continue;
+      if (cat[i] === 0) { close(); gap = true; continue; }
+      if (cat[i] === 1) {
+        if (!cur) { cur = {a: i, b: i, gap, key}; gap = false; }
+        cur.b = i + 1; moving = 0;
+      } else if (cur && ++moving > breakBins) close();
+    }
+    close();
+    const best = new Map();
+    let chain = null, gapSince = false;
+    const keep = () => { if (chain && chain.rest > (best.has(chain.key) ? best.get(chain.key).rest : 0)) best.set(chain.key, chain); chain = null; };
+    for (const r of runs) {
+      if (r.gap) gapSince = true;
+      const length = (r.b - r.a) * BIN;
+      if (length < RULE.restS) continue;
+      if (chain && chain.key === r.key && !gapSince && (r.a - chain.b) * BIN <= RULE.bridgeS) {
+        chain.breaks.push([chain.b, r.a]); chain.awake += (r.a - chain.b) * BIN;
+        chain.rests.push([r.a, r.b]); chain.rest += length; chain.b = r.b;
+      } else {
+        keep();
+        chain = {key: r.key, a: r.a, b: r.b, rest: length, awake: 0, rests: [[r.a, r.b]], breaks: []};
+      }
+      gapSince = false;
+    }
+    keep();
+    return [...best.values()].filter(c => c.rest >= RULE.minimumS).sort((x, y) => x.a - y.a);
+  }
+
+  function classify(p, thr) {
+    const since = data.from, until = data.to, n = Math.ceil((until - since) / BIN);
+    const cat = new Uint8Array(n), mad = new Float32Array(n);
+    let mv = 0, st = 0;
+    for (const [t, m] of p.bins) {
+      const i = Math.floor((t - since) / BIN);
+      if (i < 0 || i >= n) continue;
+      mad[i] = m; cat[i] = m >= thr ? 2 : 1;
+    }
+    for (let i = 0; i < n; i++) { if (cat[i] === 2) mv++; else if (cat[i] === 1) st++; }
+    // Steps per slot: each Health sample spread evenly over the slots it covers.
+    const steps = new Float32Array(n);
+    let stepsTotal = 0;
+    for (const [a, b, v] of (p.steps || [])) {
+      const i0 = Math.max(0, Math.floor((a - since) / BIN)), i1 = Math.min(n, Math.ceil((b - since) / BIN));
+      if (i1 <= i0) continue;
+      const per = v / ((b - a) / BIN);
+      for (let i = i0; i < i1; i++) {
+        const s0 = Math.max(a, since + i * BIN), s1 = Math.min(b, since + (i + 1) * BIN);
+        if (s1 > s0) { const add = per * (s1 - s0) / BIN; steps[i] += add; stepsTotal += add; }
+      }
+    }
+    // Sleep per slot: 0 none, 1 in bed, 2 asleep, 3 awake (awake and asleep override in bed).
+    const sleep = new Uint8Array(n);
+    let asleep = 0;
+    for (const [a, b, stg] of (p.sleep || [])) {
+      const code = stg === "awake" ? 3 : stg === "inBed" ? 1 : 2;
+      const i0 = Math.max(0, Math.floor((a - since) / BIN)), i1 = Math.min(n, Math.ceil((b - since) / BIN));
+      for (let i = i0; i < i1; i++) if (code > sleep[i] || sleep[i] === 1) sleep[i] = code;
+    }
+    // The nights by the phone rule, wherever Health has nothing: at rest (4)
+    // and the interruptions between the rests (5).
+    const chains = phoneNights(cat, n, since, (p.last || {}).time_zone);
+    for (const c of chains || []) {
+      for (const [a, b] of c.rests) for (let i = a; i < b; i++) if (sleep[i] === 0) sleep[i] = 4;
+      for (const [a, b] of c.breaks) for (let i = a; i < b; i++) if (sleep[i] === 0) sleep[i] = 5;
+    }
+    const nights = chains && chains.map(c => ({night: c.key, start: since + c.a * BIN, end: since + c.b * BIN,
+                                               rest: c.rest / 60, awake: c.awake / 60, interruptions: c.breaks.length}));
+    let atRest = 0;
+    for (let i = 0; i < n; i++) { if (sleep[i] === 2) asleep++; else if (sleep[i] === 4) atRest++; }
+    // Charging state per slot: 0 unknown, 1 plugged in, 2 on battery, from
+    // the events and from the battery state each upload carried (the only
+    // anchor for phones without the keep-alive). An unknown state changes nothing.
+    const chargeOf = (e) => (e === "pluggedIn" || e === "batteryFull" || e === "charging" || e === "full") ? 1 : e === "unplugged" ? 2 : 0;
+    const anchors = [...(p.charging || []).map(([t, e]) => [t, e]), ...(p.arrivals || []).filter(a => a[3]).map(a => [a[0], a[3]])].sort((a, b) => a[0] - b[0]);
+    const charging = new Uint8Array(n);
+    let cstate = p.charging_prev ? chargeOf(p.charging_prev[1]) : 0, kc = 0, plugged = 0;
+    for (let i = 0; i < n; i++) {
+      const slotEnd = since + (i + 1) * BIN;
+      while (kc < anchors.length && anchors[kc][0] < slotEnd) { const s = chargeOf(anchors[kc][1]); if (s) cstate = s; kc++; }
+      charging[i] = cstate; if (cstate === 1) plugged++;
+    }
+    const hasCharging = anchors.length > 0 || !!p.charging_prev;
+    return {cat, mad, n, mv, st, nd: n - mv - st, since, until, steps, stepsTotal: Math.round(stepsTotal), sleep, asleep, atRest, nights, charging, plugged, hasCharging};
+  }
+
+  // What a drawn column shows when there are more slots than columns: the
+  // most frequent non-empty code among its slots, ties going to the code
+  // listed first in `prefer`.
+  function columns(arr, n, cols, prefer) {
+    if (cols >= n) return arr;
+    const out = new Uint8Array(cols), counts = new Uint32Array(6);
+    for (let j = 0; j < cols; j++) {
+      const i0 = Math.floor(j * n / cols), i1 = Math.max(i0 + 1, Math.floor((j + 1) * n / cols));
+      counts.fill(0);
+      for (let i = i0; i < i1; i++) counts[arr[i]]++;
+      let best = 0, bestN = 0;
+      for (const k of prefer) if (counts[k] > bestN) { best = k; bestN = counts[k]; }
+      out[j] = best;
+    }
+    return out;
+  }
+
+  // Track layout in viewBox units, top to bottom: marks, movement bar,
+  // charging bar, sleep bar, tick marks; the labels are HTML below the SVG.
+  const G = {W: 1440, top: 14, h: 44, chgH: 10, sleepH: 12};
+  G.chgTop = G.top + G.h + 6; G.sleepTop = G.chgTop + G.chgH + 6; G.axisBase = G.sleepTop + G.sleepH + 6; G.H = G.axisBase + 8;
+
+  function strip(p, c) {
+    const {W, top, h, chgTop, chgH, sleepTop, sleepH, axisBase, H} = G;
+    const cols = Math.min(c.n, W), span = c.until - c.since;
+    const bars = (arr, y, height, colors) => {
+      let out = "", i = 0;
+      while (i < cols) {
+        let j = i; while (j < cols && arr[j] === arr[i]) j++;
+        out += `<rect x="${(i / cols * W).toFixed(2)}" y="${y}" width="${((j - i) / cols * W).toFixed(2)}" height="${height}" fill="${colors[arr[i]]}"/>`;
+        i = j;
+      }
+      return out;
+    };
+    const id = "lane" + labels.get(p.pid);
+    const clip = (k, y, height) => `<clipPath id="${id}${k}"><rect class="round" data-r="${Math.min(10, height / 2)}" x="0" y="${y}" width="${W}" height="${height}"/></clipPath>`;
+    let rects = `<defs>${clip("m", top, h)}${clip("c", chgTop, chgH)}${clip("s", sleepTop, sleepH)}</defs>`;
+    rects += `<g clip-path="url(#${id}m)">${bars(columns(c.cat, c.n, cols, [2, 1]), top, h, [C.none, C.sky, C.pink])}</g>`;
+    rects += `<g clip-path="url(#${id}c)">${bars(columns(c.charging, c.n, cols, [1, 2]), chgTop, chgH, [C.raised, C.mint, C.battery])}</g>`;
+    rects += `<g clip-path="url(#${id}s)">${bars(columns(c.sleep, c.n, cols, [2, 3, 5, 4, 1]), sleepTop, sleepH, [C.raised, C.dim, C.blue, C.yellow, C.rest, C.pink])}</g>`;
+    // Above the movement bar: uploads as triangles (mint = the participant
+    // opened the app, gray = background or keep-alive) and a pink cross per
+    // force-quit (forceQuit exact; terminated inferred at the next launch,
+    // dashed). Marks closer than a viewBox unit share one drawing, the
+    // participant's opens first.
+    const xOf = (t) => (t - c.since) / span * W;
+    const seen = new Set();
+    const mark = (x, html) => { const key = Math.round(x); if (seen.has(key)) return ""; seen.add(key); return html; };
+    const opened = ([, trig]) => trig === "open" || trig === "link" || trig === "manual";
+    const arrivals = (p.arrivals || []).filter(([t]) => t >= c.since && t <= c.until);
+    for (const a of [...arrivals.filter(opened), ...arrivals.filter(x => !opened(x))]) {
+      const x = xOf(a[0]);
+      rects += mark(x, `<polygon points="${(x - 5).toFixed(1)},1 ${(x + 5).toFixed(1)},1 ${x.toFixed(1)},${top - 1}" fill="${opened(a) ? C.mint : C.gray}"/>`);
+    }
+    seen.clear();
+    for (const [t, ev] of (p.screen || [])) {
+      if (t < c.since || t > c.until || (ev !== "forceQuit" && ev !== "terminated")) continue;
+      const x = xOf(t);
+      rects += mark(x, `<path d="M${(x - 4).toFixed(1)} 1 L${(x + 4).toFixed(1)} ${top - 3} M${(x + 4).toFixed(1)} 1 L${(x - 4).toFixed(1)} ${top - 3}" stroke="${C.pink}" stroke-width="${ev === "forceQuit" ? 2 : 1.2}" ${ev === "terminated" ? 'stroke-dasharray="2,1.5"' : ""}/>`);
+    }
+    // A yellow line through the tracks at each morning check-in; a diamond
+    // per 1-minute test, yellow for the check-in's own and sky from the Tests tab.
+    for (const ci of (p.checkins || [])) {
+      if (ci.rated == null || ci.rated < c.since || ci.rated > c.until) continue;
+      const x = xOf(ci.rated).toFixed(1);
+      rects += `<line x1="${x}" x2="${x}" y1="${top - 4}" y2="${axisBase}" stroke="${C.yellow}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+    }
+    for (const t of (p.tests || [])) {
+      if (t.t == null || t.t < c.since || t.t > c.until) continue;
+      const x = xOf(t.t);
+      rects += `<path d="M${x.toFixed(1)} .5L${(x + 5).toFixed(1)} 7L${x.toFixed(1)} 13.5L${(x - 5).toFixed(1)} 7Z" fill="${t.source === "checkin" ? C.yellow : C.sky}" stroke="${C.page}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
+    }
+    // Last upload marker.
+    if (p.last && p.last.created >= c.since && p.last.created <= c.until) {
+      const x = xOf(p.last.created).toFixed(1);
+      rects += `<line x1="${x}" x2="${x}" y1="${top - 4}" y2="${axisBase}" stroke="${C.ink}" stroke-opacity=".6" stroke-width="1" stroke-dasharray="2,2"/>`;
+    }
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" data-lane="${labels.get(p.pid)}" style="height:${H}px">${rects}<g class="ticks"></g></svg><div class="axis"></div><div class="sel"></div><div class="tip"></div>`;
+  }
+
+  // The time axis, laid out in pixels once the lanes are in the page (and
+  // again on resize): the label step is the finest candidate that keeps
+  // labels apart at this width, minor ticks the finest divisor of it with
+  // room; labels that would overlap the end label or each other are hidden,
+  // walking from the right. Everything is aligned to the viewer's local
+  // clock; a midnight label shows the date.
+  const STEPS = [60, 300, 600, 900, 1800, 3600, 7200, 10800, 21600, 43200, 86400, 172800, 604800];
+  function ticksBetween(a, b, step) {
+    const out = [], d0 = new Date(a * 1000);
+    const y = d0.getFullYear(), m = d0.getMonth(), day = d0.getDate();
+    if (step >= 86400) {
+      // Whole days counted from a fixed origin, so 2-day and weekly ticks
+      // stay put when the window moves.
+      const days = step / 86400, k = Math.round((new Date(y, m, day) - new Date(2020, 0, 1)) / 86400000) % days;
+      for (let i = -k;; i += days) { const t = new Date(y, m, day + i).getTime() / 1000; if (t > b) break; if (t >= a) out.push(t); }
+    } else {
+      // Minutes from the local midnight before the window; the Date
+      // constructor normalises, so the ticks follow the wall clock across a
+      // clock change.
+      const stepMin = step / 60;
+      for (let k = 0;; k++) { const t = new Date(y, m, day, 0, k * stepMin).getTime() / 1000; if (t > b) break; if (t >= a) out.push(t); }
+    }
+    return out;
+  }
+  function labelFor(t, step) {
+    const d = new Date(t * 1000);
+    if (step >= 86400 || (d.getHours() === 0 && d.getMinutes() === 0)) return fmtDay(t);
+    return step >= 3600 ? pad(d.getHours()) : fmtClock(t);
+  }
+  function layoutAxis(stripEl) {
+    const axis = stripEl.querySelector(".axis"), g = stripEl.querySelector("g.ticks");
+    const width = axis.getBoundingClientRect().width;
+    if (!data || !width) return;
+    const since = data.from, until = data.to, span = until - since;
+    const pxPer = (s) => width * s / span;
+    const minPx = (s) => s < 3600 ? 64 : s < 86400 ? 44 : 64;
+    const step = STEPS.find(s => pxPer(s) >= minPx(s)) || STEPS[STEPS.length - 1];
+    const minor = STEPS.find(s => s < step && step % s === 0 && pxPer(s) >= 16) || 0;
+    const majors = ticksBetween(since, until, step), majorSet = new Set(majors);
+    const minors = minor ? ticksBetween(since, until, minor).filter(t => !majorSet.has(t)) : [];
+    const xOf = (t) => (t - since) / span;
+    let lines = "", labels = "";
+    stripEl.querySelectorAll("rect.round").forEach(r => { const px = parseFloat(r.dataset.r); r.setAttribute("rx", (px * G.W / width).toFixed(2)); r.setAttribute("ry", px); });
+    for (const t of minors) { const x = (xOf(t) * G.W).toFixed(1); lines += `<line x1="${x}" x2="${x}" y1="${G.axisBase}" y2="${G.axisBase + 3}" stroke="${C.dim}" stroke-width="1"/>`; }
+    for (const t of majors) {
+      const f = xOf(t), x = (f * G.W).toFixed(1);
+      lines += `<line x1="${x}" x2="${x}" y1="${G.axisBase}" y2="${G.axisBase + 6}" stroke="${C.gray}" stroke-width="1"/>`;
+      labels += `<span style="left:${(f * 100).toFixed(3)}%">${labelFor(t, step)}</span>`;
+    }
+    labels += `<span class="now" style="left:100%">${view.live ? "now" : fmtClock(until)}</span>`;
+    g.innerHTML = lines; axis.innerHTML = labels;
+    const spans = [...axis.querySelectorAll("span")], left0 = axis.getBoundingClientRect().left;
+    let keptLeft = Infinity;
+    for (let i = spans.length - 1; i >= 0; i--) {
+      const r = spans[i].getBoundingClientRect();
+      if (r.right + 6 > keptLeft || r.left < left0 - 8) spans[i].style.visibility = "hidden";
+      else keptLeft = r.left;
+    }
+  }
+  function layoutAxes() { document.querySelectorAll("#lanes .strip").forEach(layoutAxis); }
+
+  // The pager, out of sight until the phones outnumber the smallest page, so
+  // that picking a larger page never takes the choice away.
+  function syncPager() {
+    const first = (data.page - 1) * data.per + 1, last = first + data.phones.length - 1;
+    $("pager").hidden = data.total <= PER_PAGE[0];
+    $("pagetxt").innerHTML = `Phones <b>${first} to ${last}</b> of <b>${data.total}</b>`;
+    $("prevpage").disabled = data.page <= 1; $("nextpage").disabled = last >= data.total;
+    $("pagehint").hidden = data.total <= data.phones.length;
+    setSeg("per", String(view.per));
+  }
+
+  function render() {
+    if (!data) return;
+    const thr = parseFloat($("thr").value);
+    $("thrv").textContent = thr.toFixed(3) + " g";
+    const now = data.now, since = data.from, until = data.to;
+    const spanText = view.live ? `the last ${hoursText(data.hours)}` : `${fmtDT(since)} to ${fmtDT(until)}`;
+    // The page as the server chose it: filtered, in lane order.
+    const phones = data.phones, paged = data.total > phones.length;
+    syncPager();
+
+    const active = phones.filter(p => p.uploads_window > 0);
+    const armed = phones.filter(p => p.last && p.last.armed_until > now && p.last.accel_available !== false);
+    const uploads = phones.reduce((a, p) => a + p.uploads_window, 0);
+    cls = new Map(phones.map(p => [p.pid, classify(p, thr)]));
+    const cov = active.map(p => { const c = cls.get(p.pid); return (c.mv + c.st) / c.n; }).sort((a, b) => a - b);
+    const medCov = cov.length ? cov[Math.floor(cov.length / 2)] : 0;
+    const raters = phones.filter(p => (p.checkin_nights || []).length);
+    const ratedLast = raters.filter(p => p.checkin_nights.includes(nightClock(p.last.time_zone, now).last));
+    $("stats").innerHTML = `
+      <div class="card stat"><div class="k">Phones heard from ${squiggle(C.yellow)}</div><div class="v">${active.length}</div><div class="d">with an upload in ${spanText}, of ${phones.length} ${paged ? "on this page" : "ever seen"}</div></div>
+      <div class="card stat"><div class="k">Recording now ${squiggle(C.pink)}</div><div class="v ${armed.length ? "" : "warn"}">${armed.length}</div><div class="d">phones inside a 12-hour window armed at their last open</div></div>
+      <div class="card stat"><div class="k">Uploads ${squiggle(C.mint)}</div><div class="v">${uploads}</div><div class="d">in ${spanText}, all triggers</div></div>
+      <div class="card stat"><div class="k">Coverage ${squiggle(C.sky)}</div><div class="v">${Math.round(medCov * 100)}%</div><div class="d">median share of the window with a recorded bin, phones heard from</div></div>
+      <div class="card stat"><div class="k">Checked in ${squiggle(C.blue)}</div><div class="v">${ratedLast.length}</div><div class="d">rated last night, of ${raters.length} phone${raters.length === 1 ? "" : "s"} that ever checked in</div></div>`;
+
+    if (!phones.length) { $("lanes").innerHTML = `<div class="empty">No uploads yet.</div>`; return; }
+    $("lanes").innerHTML = phones.map((p, k) => {
+      const c = cls.get(p.pid), L = p.last;
+      const stale = now - L.created > 26 * 3600;
+      const rec = L.accel_available === false ? `<span class="warn">no accelerometer on this device</span>`
+        : L.armed_until > now ? `<span class="ok">recording until ${fmtTime(L.armed_until)}</span>`
+        : `<span class="warn">no recording armed</span> (last one ended ${fmtDT(L.armed_until)})`;
+      const errs = L.n_errors ? ` · <span class="warn">${L.n_errors} error${L.n_errors > 1 ? "s" : ""}</span>` : "";
+      const bat = L.battery_state && L.battery_state !== "unknown"
+        ? ` · ${L.battery_state === "unplugged" ? "on battery" : "plugged in"}${L.battery_level != null ? ` ${L.battery_level}%` : ""}${L.low_power ? ", Low Power Mode" : ""} at last upload` : "";
+      const nights = p.checkin_nights || [], clock = nightClock(L.time_zone, now);
+      const checkin = !nights.length ? "" : `<span class="meta">${nights.includes(clock.last) ? `<span class="ok">checked in</span> for last night`
+        : clock.open ? `<span class="warn">no check-in yet</span> for last night` : `<span class="warn">missed</span> last night's check-in`} · streak <b>${streak(nights, clock)}</b></span>`;
+      // The reminder: one visible notification to this phone, sent by hand;
+      // only a phone that registered for notifications can be reached.
+      const reminded = p.reminded ? `<span class="meta">reminded <b>${ago(p.reminded[0], now)}</b>${p.reminded[1] ? "" : ` · <span class="warn">not delivered</span>`}</span>` : "";
+      const remind = `<button type="button" class="pill remind" data-lane="${labels.get(p.pid)}"${p.push_tokens ? ` title="Send a notification asking to open the app"` : ` disabled title="This phone has not registered for notifications"`}>remind</button>`;
+      const quits = (p.screen || []).filter(([t, e]) => t >= c.since && t <= c.until && (e === "forceQuit" || e === "terminated")).length;
+      const sw = (color) => `<i class="sw" style="background:${color}"></i>`;
+      const totals = [`${sw(C.pink)}<b>${mins(c.mv)}</b> moving`, `${sw(C.sky)}<b>${mins(c.st)}</b> still`,
+                      `${sw(C.none)}<b>${mins(c.nd)}</b> no data`, `${sw(C.blue)}<b>${mins(c.asleep)}</b> asleep`];
+      if (quits) totals.push(`<b>${quits}</b> force-quit${quits === 1 ? "" : "s"}`);
+      if (c.hasCharging) totals.push(`${sw(C.mint)}<b>${mins(c.plugged)}</b> plugged in`,
+                                     `<b>${(p.charging || []).filter(([t, e]) => t >= c.since && t <= c.until && e === "pluggedIn").length}</b> plug-ins`);
+      if (c.atRest) totals.splice(4, 0, `${sw(C.rest)}<b>${mins(c.atRest)}</b> at rest by the phone rule`);
+      if (!c.nights) totals.splice(4, 0, `the phone rule needs the 1-minute interval`);
+      for (const kind of Object.keys(TEST_NAMES)) {
+        const runs = (p.tests || []).filter(t => t.test === kind && t.completed && t.score != null);
+        if (runs.length) totals.push(`<i class="dm"></i><b>${testScore(runs[runs.length - 1])}</b> ${TEST_NAMES[kind]}${runs.length > 1 ? `, latest of ${runs.length} runs` : ""}`);
+      }
+      totals.push(`last bin ${c.mv + c.st ? fmtDT(p.bins[p.bins.length - 1][0]) : "none in window"}`);
+      // One row per night of the window: the night by the phone rule, and
+      // the check-in (the rating and the guess, given before the app showed
+      // the night, beside what it then showed).
+      const runById = new Map((p.tests || []).map(t => [t.id, t]));
+      const byNight = new Map();
+      for (const nt of (c.nights || [])) byNight.set(nt.night, {rule: nt});
+      for (const ci of (p.checkins || [])) byNight.set(ci.night, {...(byNight.get(ci.night) || {}), ci});
+      const rows = [...byNight.keys()].sort().map(key => {
+        const {rule, ci} = byNight.get(key);
+        const run = ci && runById.get(ci.test);
+        const ruleCells = rule
+          ? `<td>${hm(rule.rest)}</td><td>${fmtTime(rule.start)} to ${fmtTime(rule.end)}</td><td>${rule.interruptions ? `${rule.interruptions}, ${hm(rule.awake)}` : "none"}</td><td>${Math.round(100 * rule.rest / (rule.rest + rule.awake))}%</td>`
+          : `<td class="muted" colspan="4">${c.nights ? "no night by the rule" : "needs the 1-minute interval"}</td>`;
+        const ciCells = !ci ? `<td class="muted" colspan="5">no check-in</td>`
+          : `<td>${ci.quality != null ? `${ci.quality} of 5` : ""}</td><td>${ci.hours != null ? hm(ci.hours * 60) : ""}</td>`
+            + (ci.minutes != null ? `<td>${hm(ci.minutes)}, ${ci.source === "health" ? "Health" : "phone at rest"}</td><td>${ci.hours != null ? signed(Math.round(ci.hours * 60 - ci.minutes)) : ""}</td>` : `<td class="muted">nothing measured</td><td></td>`)
+            + `<td${ci.skipped ? ` class="muted"` : ""}>${ci.skipped ? "skipped" : run ? testScore(run) : ""}</td>`;
+        return `<tr><td>${nightLabel(key)}</td>${ruleCells}${ciCells}</tr>`;
+      }).join("");
+      const table = rows ? `<div class="nights-wrap"><table class="nights"><tr><th>Night</th><th>At rest (rule)</th><th>From, to</th><th>Interruptions</th><th>Efficiency</th><th>Rating</th><th>Own guess</th><th>App showed</th><th>Guess minus shown</th><th>Reaction test</th></tr>${rows}</table></div>` : "";
+      return `<div class="card lane">
+        <div class="head"><span class="pid display">${labels.get(p.pid)} ${squiggle(ACCENTS[k % ACCENTS.length])}</span>
+          <span class="meta">last upload <b class="${stale ? "warn" : ""}">${ago(L.created, now)}</b> (${fmtDT(L.created)}, ${L.trigger || "v1.0"})${errs}</span>
+          <span class="meta">${rec}${L.keep_alive ? ` · <span class="ok">keep-alive on</span>` : ""}${bat}</span>
+          ${checkin}${reminded}
+          <span class="meta">${p.uploads_window} upload${p.uploads_window === 1 ? "" : "s"} in window · ${p.uploads} total · v${L.app_version || "?"} · ${L.model || ""} · code <b>${p.receipt}</b></span>
+          ${remind}
+        </div>
+        <div class="strip">${strip(p, c)}</div>
+        <div class="totals">${totals.map(t => `<span>${t}</span>`).join("")}</div>${table}
+      </div>`;
+    }).join("");
+    wire();
+    layoutAxes();
+  }
+
+  // Hover readout, and drag with the mouse to zoom into a range.
+  function wire() {
+    document.querySelectorAll("#lanes .strip").forEach(stripEl => {
+      const svg = stripEl.querySelector("svg"), tip = stripEl.querySelector(".tip"), sel = stripEl.querySelector(".sel");
+      const p = data.phones.find(q => labels.get(q.pid) === svg.dataset.lane), c = cls.get(p.pid);
+      const at = (ev) => { const r = svg.getBoundingClientRect(); return {r, x: ev.clientX - r.left, f: Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width))}; };
+      svg.addEventListener("pointermove", (ev) => {
+        const {r, x, f} = at(ev);
+        if (drag && drag.svg === svg) {
+          const x0 = Math.min(drag.x, x), x1 = Math.max(drag.x, x);
+          drag.moved = drag.moved || x1 - x0 >= 6;
+          sel.style.left = x0 + "px"; sel.style.width = (x1 - x0) + "px"; sel.style.display = "block";
+        }
+        const i = Math.min(c.n - 1, Math.floor(f * c.n));
+        const t = c.since + i * BIN;
+        const label = c.cat[i] === 0 ? "no data" : (c.cat[i] === 2 ? "moving" : "still") + ` · ${c.mad[i].toFixed(4)} g`;
+        const slotStart = c.since + i * BIN, slotEnd = slotStart + BIN;
+        const ups = (p.arrivals || []).filter(([t]) => t >= slotStart - BIN && t < slotEnd + BIN).map(([, trig]) => `upload (${trig})`);
+        const evName = {forceQuit: "force-quit", terminated: "app ended (inferred)", launch: "app launched", launchBackground: "app woke in the background", pluggedIn: "plugged in", unplugged: "unplugged", batteryFull: "battery full"};
+        const evs = (p.screen || []).filter(([t, e]) => t >= slotStart - BIN && t < slotEnd + BIN && evName[e]).map(([, e]) => evName[e]);
+        const chg = (p.charging || []).filter(([t]) => t >= slotStart - BIN && t < slotEnd + BIN).map(([, e, lv]) => (evName[e] || e) + (lv != null ? ` ${lv}%` : ""));
+        const near = (t) => t != null && t >= slotStart - BIN && t < slotEnd + BIN;
+        const cis = (p.checkins || []).filter(ci => near(ci.rated)).map(ci => `check-in ${ci.quality} of 5, guessed ${hm(ci.hours * 60)}`);
+        const tts = (p.tests || []).filter(t => near(t.t)).map(t => `${TEST_NAMES[t.test]} test ${testScore(t)}${t.completed ? "" : " (cut short)"}`);
+        const all = [...ups, ...evs, ...chg, ...cis, ...tts];
+        const marks = all.length ? " · " + all.join(", ") : "";
+        const sl = ["", " · plugged in", " · on battery"][c.charging[i]] + ["", " · in bed", " · asleep", " · awake", " · at rest (phone rule)", " · interruption (phone rule)"][c.sleep[i]] + marks;
+        tip.textContent = `${fmtDT(t)} (${binText(BIN)} bin) · ${label}${sl}`;
+        tip.style.left = x + "px"; tip.style.top = "0px"; tip.style.display = "block";
+      });
+      svg.addEventListener("pointerleave", () => { tip.style.display = "none"; });
+      svg.addEventListener("pointerdown", (ev) => {
+        if (ev.pointerType !== "mouse" || ev.button !== 0) return;
+        drag = {svg, x: at(ev).x, moved: false};
+        svg.setPointerCapture(ev.pointerId);
+      });
+      svg.addEventListener("pointerup", (ev) => {
+        if (!drag || drag.svg !== svg) return;
+        const {r, f} = at(ev), f0 = Math.min(drag.x / r.width, f), f1 = Math.max(drag.x / r.width, f), moved = drag.moved;
+        drag = null; sel.style.display = "none";
+        if (!moved) return;
+        const span = c.until - c.since;
+        setFixed(Math.floor((c.since + f0 * span) / 60) * 60, Math.ceil((c.since + f1 * span) / 60) * 60);
+      });
+      svg.addEventListener("pointercancel", () => { drag = null; sel.style.display = "none"; });
+    });
+  }
+
+  // The remind button: confirm, send, and load again so the lane shows it.
+  $("lanes").addEventListener("click", async (ev) => {
+    const b = ev.target.closest("button.remind");
+    if (!b || b.disabled) return;
+    const lane = b.dataset.lane, p = data.phones.find(q => labels.get(q.pid) === lane);
+    if (!p || !confirm(`Send phone ${lane} a notification asking to open the app?`)) return;
+    b.disabled = true; b.textContent = "sending";
+    try {
+      const r = await fetch(`${API}/remind`, {method: "POST", headers: {"authorization": `Bearer ${TOKEN}`, "content-type": "application/json"}, body: JSON.stringify({pid: p.pid})});
+      const out = await r.json();
+      if (!r.ok || !out.ok) throw new Error(out.error || `server answered ${r.status}`);
+      await load();
+    } catch (e) {
+      b.disabled = false; b.textContent = "remind";
+      $("err").innerHTML = `<div class="err">Reminder to ${lane} not sent: ${e.message}.</div>`;
+    }
+  });
+  $("thr").addEventListener("input", render);
+  $("hidesilent").addEventListener("change", () => { view.page = 1; load(); });
+  $("prevpage").addEventListener("click", () => { view.page--; load(); });
+  $("nextpage").addEventListener("click", () => { view.page++; load(); });
+  buildSeg("per", PER_PAGE.map(n => [n, String(n)]), (v) => {
+    view.per = parseInt(v, 10); view.page = 1;
+    remember("nsPer", v); load();
+  });
+  buildSeg("bin", BINS.map(b => [b, `${b / 60} min`]), (v) => {
+    view.bin = parseInt(v, 10);
+    remember("nsBin", String(view.bin)); syncControls(); load();
+  });
+  buildSeg("hours", PRESETS.map(h => [h, PRESET_LABELS[h]]), (v) => {
+    remember("nsHours", v); setLive(parseFloat(v));
+  });
+  const fromFields = () => {
+    const f = parseWhen($("from").value), t = parseWhen($("to").value);
+    if (f === null || t === null) return;
+    if (t <= f) { $("err").innerHTML = `<div class="err">The window's start must come before its end.</div>`; return; }
+    setFixed(f, t);
+  };
+  $("from").addEventListener("change", fromFields);
+  $("to").addEventListener("change", fromFields);
+  $("earlier").addEventListener("click", () => shift(-1));
+  $("later").addEventListener("click", () => shift(1));
+  $("tonow").addEventListener("click", () => setLive(spanS() / 3600));
+  syncControls();
+  load();
+  setInterval(() => { if (--countdown <= 0) { if (view.live || failed) load(); else countdown = 30; } }, 1000);
+  new ResizeObserver(() => layoutAxes()).observe($("lanes"));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Join NightStand</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { --ink: #1a1a1a; --gray: #6b6b6b; --line: #e3e3e3; --red: #cc0000; --red-dark: #a30000; --steel: #3e5c76; --steel-soft: #e3eaf0; --soft: #f5f5f5; --white: #fff; }
+  body { margin: 0; background: var(--white); color: var(--ink); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 40px 20px 60px; }
+  h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.2px; }
+  .sub { color: var(--gray); margin: 0 0 8px; }
+  .rule { height: 2px; background: var(--red); margin: 8px 0 12px; }
+
+  .ns-step { display: grid; grid-template-columns: 34px 1fr; column-gap: 14px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .ns-step:last-of-type { border-bottom: none; }
+  .ns-num { width: 34px; height: 34px; border-radius: 50%; background: var(--red); color: var(--white); font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+  .ns-step h3 { font-size: 17px; font-weight: 700; margin: 0; line-height: 34px; }
+  .ns-step p { font-size: 15px; color: #3d3d3d; margin: 2px 0 0; }
+
+  .ns-btn { display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; text-decoration: none; color: var(--white); background: var(--red); padding: 11px 18px; border: 1px solid var(--red); border-radius: 3px; }
+  .ns-btn:hover { background: var(--red-dark); border-color: var(--red-dark); }
+
+  .ns-ids { grid-column: 1 / -1; margin-top: 16px; display: grid; gap: 8px; }
+  .ns-id { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; font: inherit; text-align: left; padding: 11px 14px; background: var(--soft); color: var(--ink); border: none; border-left: 3px solid var(--steel); cursor: pointer; }
+  .ns-id:hover { background: var(--steel-soft); }
+  .ns-id .who { min-width: 0; }
+  .ns-id .name { display: block; font-size: 15px; font-weight: 700; }
+  .ns-id .code { display: block; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; color: var(--gray); overflow-wrap: anywhere; }
+  .ns-id .act { flex: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--steel); padding: 6px 11px; border: 1px solid var(--steel); border-radius: 3px; background: var(--white); min-width: 74px; text-align: center; }
+  .ns-id.copied { background: var(--steel-soft); }
+  .ns-id.copied .act { background: var(--steel); color: var(--white); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Join NightStand</h1>
+  <p class="sub">Three steps, all on your iPhone.</p>
+  <div class="rule"></div>
+
+  <div class="ns-step">
+    <div class="ns-num">1</div>
+    <div>
+      <h3>Install TestFlight</h3>
+      <p>TestFlight is Apple's app for installing test versions of apps.</p>
+      <a class="ns-btn" href="https://apps.apple.com/app/testflight/id899247664">Get TestFlight</a>
+    </div>
+  </div>
+
+  <div class="ns-step">
+    <div class="ns-num">2</div>
+    <div>
+      <h3>Install NightStand</h3>
+      <p>Open the invite, tap <strong>Accept</strong>, then <strong>Install</strong>.</p>
+      <a class="ns-btn" href="https://testflight.apple.com/join/fPsaZY5A">Open the invite</a>
+    </div>
+  </div>
+
+  <div class="ns-step">
+    <div class="ns-num">3</div>
+    <div>
+      <h3>Turn on sharing with your code</h3>
+      <p>Open NightStand, tap <strong>Start</strong> and tap <strong>Allow</strong> for Health and for Motion &amp; Fitness. Tap your name below to copy your code. Then tap the gear, paste the code under <strong>Our study</strong> and turn on <strong>Share my data with the study</strong>.</p>
+    </div>
+    <div class="ns-ids">
+      <button type="button" class="ns-id" data-id="ADA0000000000000000000000">
+        <span class="who"><span class="name">Ada</span><span class="code">ADA0000000000000000000000</span></span>
+        <span class="act">Copy</span>
+      </button>
+      <button type="button" class="ns-id" data-id="ANDREI000000000000000000">
+        <span class="who"><span class="name">Andrei</span><span class="code">ANDREI000000000000000000</span></span>
+        <span class="act">Copy</span>
+      </button>
+      <button type="button" class="ns-id" data-id="GEORGE000000000000000000">
+        <span class="who"><span class="name">George</span><span class="code">GEORGE000000000000000000</span></span>
+        <span class="act">Copy</span>
+      </button>
+      <button type="button" class="ns-id" data-id="JEROME000000000000000000">
+        <span class="who"><span class="name">Jerome</span><span class="code">JEROME000000000000000000</span></span>
+        <span class="act">Copy</span>
+      </button>
+      <button type="button" class="ns-id" data-id="LEON00000000000000000000">
+        <span class="who"><span class="name">Leon</span><span class="code">LEON00000000000000000000</span></span>
+        <span class="act">Copy</span>
+      </button>
+      <button type="button" class="ns-id" data-id="MARGARITA0000000000000000">
+        <span class="who"><span class="name">Margarita</span><span class="code">MARGARITA0000000000000000</span></span>
+        <span class="act">Copy</span>
+      </button>
+    </div>
+  </div>
+</main>
+
+<script>
+  // In-app browsers can refuse the Clipboard API, so a refused write goes through a hidden field.
+  function copyText(text) {
+    return navigator.clipboard.writeText(text).catch(() => {
+      const field = document.createElement('textarea');
+      field.value = text;
+      field.readOnly = true;
+      field.style.position = 'fixed';
+      field.style.opacity = '0';
+      document.body.appendChild(field);
+      field.select();
+      field.setSelectionRange(0, text.length);
+      const copied = document.execCommand('copy');
+      field.remove();
+      if (!copied) throw new Error('Copy refused');
+    });
+  }
+
+  document.querySelectorAll('.ns-id').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await copyText(btn.dataset.id);
+      document.querySelectorAll('.ns-id.copied').forEach(other => {
+        other.classList.remove('copied');
+        other.querySelector('.act').textContent = 'Copy';
+      });
+      btn.classList.add('copied');
+      btn.querySelector('.act').textContent = 'Copied';
+    });
+  });
+</script>
+
+</body>
+</html>

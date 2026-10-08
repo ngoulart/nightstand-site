@@ -188,12 +188,30 @@
     set(0);
   }
 
-  // ---------- the film ----------
+  // ---------- the film: it plays silently in a loop while on screen, and ----------
+  // ---------- from the start with sound when asked ----------
   const reel = $(".reel");
   if (reel) {
     const video = $("video", reel);
-    $(".play", reel).addEventListener("click", () => { video.controls = true; video.play(); reel.classList.add("playing"); });
-    video.addEventListener("ended", () => { video.controls = false; reel.classList.remove("playing"); video.load(); });
+    const quiet = () => {
+      video.muted = true; video.loop = true; video.controls = false;
+      reel.classList.remove("playing");
+      video.play().then(() => reel.classList.add("silent"), () => reel.classList.remove("silent"));
+    };
+    const aloud = () => {
+      video.muted = false; video.loop = false; video.controls = true; video.currentTime = 0;
+      reel.classList.remove("silent");
+      reel.classList.add("playing");
+      video.play();
+    };
+    $(".play", reel).addEventListener("click", aloud);
+    $(".sound", reel).addEventListener("click", aloud);
+    video.addEventListener("ended", () => {
+      if (!reduce) return quiet();
+      video.controls = false; reel.classList.remove("playing"); video.load();
+    });
+    if (!reduce) whileVisible(reel, () => { if (!reel.classList.contains("playing")) quiet(); },
+      () => { if (!reel.classList.contains("playing")) video.pause(); });
   }
 
   // ---------- the example night: movement in, a night out ----------

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NightStand: a sleep health app for iPhone</title>
-<meta name="description" content="NightStand is a sleep health app for iPhone. It measures how long, how regularly and how well you sleep from the phone on your nightstand, and how it shows the next day.">
+<meta name="description" content="NightStand is a sleep health app for iPhone: see your night, know if you were right about it, and feel it the next day.">
 <meta name="theme-color" content="#151515">
 <meta property="og:site_name" content="NightStand">
 <meta property="og:type" content="website">
@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:ital,wght@0,800;1,800;1,900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/a/site.css?v=f7162f48e2">
+<link rel="stylesheet" href="/a/site.css?v=5e44814e59">
 <script>document.documentElement.classList.add("js")</script>
 </head>
 <body data-page="home" data-api="https://mtzppuynickaaeehukqs.supabase.co/functions/v1/motion">
@@ -20,6 +20,7 @@
   <a class="brand" href="/" aria-label="NightStand, home"><span id="sticker"></span><span class="display">NightStand</span></a>
   <nav class="links" id="links" aria-label="Pages">
     <a href="/how">How it works</a>
+    <a href="/why">Why sleep</a>
     <a href="/study">Our study</a>
     <a href="/privacy">Privacy</a>
   </nav>
@@ -28,121 +29,21 @@
 </header>
 
 <main>
-  <section class="hero">
+  <section class="hero split">
     <canvas class="halo" aria-hidden="true"></canvas>
     <div class="hero-copy wrap">
-      <h1 class="display mega">
-        <span class="line" style="--i:0"><span>Your</span></span>
-        <span class="line" style="--i:1"><span><span class="hl" id="paper">nightstand</span></span></span>
-        <span class="line" style="--i:2"><span>knows how</span></span>
-        <span class="line" style="--i:3"><span>you slept.</span></span>
-      </h1>
-      <p class="lede">A <b>sleep health app</b> for iPhone. See <b>how long, how regularly and how well</b> you sleep, and how it shows the next day.</p>
-      <div class="cta">
-        <a class="pill" href="/how">How it works</a>
-        <a class="pill quiet" href="#film"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>Watch the 20-second film</a>
+      <div class="pitch">
+        <h1 class="display mega">
+          <span class="line" style="--i:0"><span>Your</span></span>
+          <span class="line" style="--i:1"><span><span class="hl" id="paper">nightstand</span></span></span>
+          <span class="line" style="--i:2"><span>knows how</span></span>
+          <span class="line" style="--i:3"><span>you slept.</span></span>
+        </h1>
+        <p class="lede">A <b>sleep health app</b> for iPhone.</p>
+        <div class="cta"><a class="pill" href="/how">How it works</a></div>
       </div>
-    </div>
-  </section>
-
-  <div class="tape" aria-hidden="true"><div class="run">
-    <span>Sleep on it.</span><span>7 hours or more.</span><span>Regular beats long.</span><span>Know your nights.</span>
-  </div></div>
-
-  <section class="statement wrap">
-    <p data-words>NightStand is a <b>sleep health app</b> for iPhone. It measures your night from the phone on your nightstand and shows <b>what your sleep does to your day.</b></p>
-    <svg class="scribble" viewBox="0 0 520 22" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M4 12C90 4 170 18 262 9s170-6 254 3M40 19c120-7 300-8 440-2"/></svg>
-  </section>
-
-  <section class="block wrap" id="why">
-    <div class="title" data-reveal><h2 class="display">Why sleep</h2><span data-squiggle="sky"></span></div>
-    <p class="sub" data-reveal>What research says about the hours and the regularity of sleep. Each card opens its source.</p>
-    <div class="grid two">
-      <a class="card why" href="https://doi.org/10.5664/jcsm.4758" rel="noopener" data-reveal style="--i:0;--accent:var(--sky)">
-        <span class="stat">7h+</span>
-        <span class="tag">7 hours or more</span>
-        <p>Sleep medicine societies recommend that adults sleep 7 or more hours a night on a regular basis.</p>
-        <cite>Watson et al. 2015, Journal of Clinical Sleep Medicine</cite></a>
-      <a class="card why" href="https://doi.org/10.1093/sleep/26.2.117" rel="noopener" data-reveal style="--i:1;--accent:var(--yellow)">
-        <span class="stat">2 weeks</span>
-        <span class="tag">Sleep debt adds up</span>
-        <p>Two weeks of 6 hours or less in bed a night hurt thinking as much as up to two sleepless nights, and people seemed largely unaware of it.</p>
-        <cite>Van Dongen et al. 2003, Sleep</cite></a>
-      <a class="card why" href="https://doi.org/10.1093/sleep/zsad253" rel="noopener" data-reveal style="--i:0;--accent:var(--pink)">
-        <span class="stat">61,000</span>
-        <span class="tag">Regular beats long</span>
-        <p>Among about 61,000 UK adults, a regular sleep schedule predicted the risk of death better than how long people slept.</p>
-        <cite>Windred et al. 2024, Sleep</cite></a>
-      <a class="card why" href="https://doi.org/10.1136/oem.57.10.649" rel="noopener" data-reveal style="--i:1;--accent:var(--mint)">
-        <span class="stat">0.05%</span>
-        <span class="tag">Tired like tipsy</span>
-        <p>After 17 to 19 hours awake, people did as badly or worse on some tests as at a 0.05% blood alcohol level.</p>
-        <cite>Williamson and Feyer 2000, Occupational and Environmental Medicine</cite></a>
-    </div>
-  </section>
-
-  <section class="block wrap" id="how">
-    <div class="story">
-      <div class="steps">
-        <article class="step">
-          <div class="step-head"><span class="badge">1</span></div>
-          <h3 class="display">Set it <em>down.</em></h3>
-          <p><b>The app records every night on its own.</b> It reads how your phone moves and keeps a 30-second summary.</p>
-          <figure class="phone"><img src="/a/today.jpg?v=823e8fcd69" width="420" height="913" loading="lazy" alt="The Today screen: last night lasted 6 hours 34 minutes, from 11:00 PM to 5:41 AM, with two short interruptions."><span class="zzz" aria-hidden="true"><i>z</i><i>z</i><i>z</i></span></figure>
-        </article>
-        <article class="step">
-          <div class="step-head"><span class="badge">2</span></div>
-          <h3 class="display">Guess <em>first.</em></h3>
-          <p><b>Each morning, it asks about your night</b> before it shows the measurement: how you slept, when you fell asleep and for how long.</p>
-          <figure class="phone"><img src="/a/guess.jpg?v=3ecb3c3f20" width="420" height="913" loading="lazy" alt="The morning check-in asks how long you slept, with a wheel set to 7 hours 15 minutes."></figure>
-        </article>
-        <article class="step">
-          <div class="step-head"><span class="badge">3</span></div>
-          <h3 class="display">Test your <em>reaction.</em></h3>
-          <p><b>One 30-second test</b> in the morning check-in and one before bed. Five more tests of attention and memory, any time.</p>
-          <figure class="phone"><img src="/a/tests.jpg?v=3061571f53" width="420" height="913" loading="lazy" alt="The Tests page: Reaction, Symbols, 2-back, Go / no-go, Sequence and Colors, each with its last score."></figure>
-        </article>
-        <article class="step">
-          <div class="step-head"><span class="badge">4</span></div>
-          <h3 class="display">See how <em>you slept.</em></h3>
-          <p><b>Your guess beside the measured night</b>, on one clock, with each time you picked the phone up.</p>
-          <figure class="phone"><img src="/a/night.jpg?v=48964bbc7b" width="420" height="913" loading="lazy" alt="Your night: a guess of 7 hours 15 minutes beside 6 hours 34 minutes measured, on one clock."></figure>
-        </article>
-      </div>
-      <div class="rig" data-step="0" aria-hidden="true">
-        <span class="glow"></span>
-        <figure class="phone">
-          <img class="on" src="/a/today.jpg?v=823e8fcd69" width="420" height="913" alt="">
-          <img src="/a/guess.jpg?v=3ecb3c3f20" width="420" height="913" alt="">
-          <img src="/a/tests.jpg?v=3061571f53" width="420" height="913" alt="">
-          <img src="/a/night.jpg?v=48964bbc7b" width="420" height="913" alt="">
-        </figure>
-        <span class="zzz"><i>z</i><i>z</i><i>z</i></span>
-      </div>
-    </div>
-  </section>
-
-  <section class="block wrap">
-    <div class="title" data-reveal><h2 class="display">What a morning shows</h2><span data-squiggle="yellow"></span></div>
-    <p class="sub" data-reveal>One night, as the app reports it.</p>
-    <div class="grid three">
-      <div class="card metric" data-reveal style="--i:0;--accent:var(--sky)"><p class="v" data-count>6h 34m</p><p class="k">Time asleep</p><p class="d">From 11:00 PM to 5:41 AM.</p></div>
-      <div class="card metric" data-reveal style="--i:1;--accent:var(--mint)"><p class="v" data-count>98%</p><p class="k">Efficiency</p><p class="d">The share of the night asleep.</p></div>
-      <div class="card metric" data-reveal style="--i:2;--accent:var(--pink)"><p class="v" data-count>2</p><p class="k">Interruptions</p><p class="d">At 2:00 AM and 4:30 AM, 7 min in all.</p></div>
-      <div class="card metric" data-reveal style="--i:0;--accent:var(--yellow)"><p class="v" data-count>7h 15m</p><p class="k">Your guess</p><p class="d">41 min more than measured.</p></div>
-      <div class="card metric" data-reveal style="--i:1;--accent:var(--lilac)"><p class="v" data-count>42 min</p><p class="k">Before bed</p><p class="d">How long the phone moved in the hour before.</p></div>
-      <div class="card metric" data-reveal style="--i:2;--accent:var(--peach)"><p class="v" data-count>283 ms</p><p class="k">Reaction</p><p class="d">From the 30-second test in the check-in.</p></div>
-    </div>
-  </section>
-
-  <section class="block wrap" id="film">
-    <div class="film">
-      <div data-reveal="left">
-        <h2 class="display">The whole app in <em>20 seconds.</em></h2>
-        <p>Set it down, guess, test, see the night. Sound on.</p>
-      </div>
-      <div class="reel" data-reveal="pop">
-        <video playsinline preload="none" poster="/a/film.jpg?v=063b58fc0a" src="https://mtzppuynickaaeehukqs.supabase.co/storage/v1/object/public/site-media/nightstand_promo_v2.mp4"></video>
+      <div class="reel" id="film">
+        <video playsinline muted loop preload="none" poster="/a/film.jpg?v=063b58fc0a" src="https://mtzppuynickaaeehukqs.supabase.co/storage/v1/object/public/site-media/nightstand_promo_v2.mp4"></video>
         <button class="play" type="button" aria-label="Play the 20-second film">
           <span class="disc">
             <svg class="ring" viewBox="0 0 132 132" aria-hidden="true"><defs><path id="ring" d="M66 66m-54 0a54 54 0 1 1 108 0a54 54 0 1 1-108 0"/></defs>
@@ -150,45 +51,38 @@
             <span class="core"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg></span>
           </span>
         </button>
+        <button class="sound" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>Sound on</button>
       </div>
     </div>
   </section>
 
-  <section class="block wrap">
-    <div class="title center" data-reveal><h2 class="display">Your sleep over weeks</h2><span data-squiggle="sky"></span></div>
-    <p class="sub" data-reveal>Your average night, how much the time you fall asleep varies, and your efficiency, by day, week, month and six months.</p>
-    <div class="fan">
-      <figure class="phone" data-reveal style="--i:0"><img src="/a/streak.jpg?v=7cd9d2a229" width="420" height="913" loading="lazy" alt="Streak: 4 days of check-ins in a row, on a calendar of October.">
-        <figcaption><b>Streak</b>Mornings with a check-in.</figcaption></figure>
-      <figure class="phone" data-reveal style="--i:1"><img src="/a/trends.jpg?v=e0c79620c5" width="420" height="913" loading="lazy" alt="Trends for one week: a bar per night from the time asleep to the time awake.">
-        <figcaption><b>Trends</b>A bar per night, asleep to awake.</figcaption></figure>
-      <figure class="phone" data-reveal style="--i:2"><img src="/a/day.jpg?v=6effb817b6" width="420" height="913" loading="lazy" alt="One night: 5 hours 12 minutes measured, with that morning's check-in.">
-        <figcaption><b>Any night</b>The measurement and that morning's answers.</figcaption></figure>
-    </div>
-  </section>
-
-  <section class="block wrap">
-    <div class="title" data-reveal><h2 class="display">How sleep shows the next day</h2><span data-squiggle="pink"></span></div>
-    <p class="sub" data-reveal>Six 30-second tests of alertness, memory and focus. Trends set each score against the night before: after under 7 hours, and after 7 hours or more.</p>
-    <div class="grid three">
-      <div class="card tile" data-reveal style="--i:0"><span class="badge" data-glyph="bolt"></span><h3>Reaction</h3><p class="what">Alertness</p></div>
-      <div class="card tile" data-reveal style="--i:1"><span class="badge" data-glyph="grid"></span><h3>Symbols</h3><p class="what">Processing speed</p></div>
-      <div class="card tile" data-reveal style="--i:2"><span class="badge" data-glyph="back"></span><h3>2-back</h3><p class="what">Working memory</p></div>
-      <div class="card tile" data-reveal style="--i:0"><span class="badge" data-glyph="go"></span><h3>Go / no-go</h3><p class="what">Impulse control</p></div>
-      <div class="card tile" data-reveal style="--i:1"><span class="badge" data-glyph="seq"></span><h3>Sequence</h3><p class="what">Memory span</p></div>
-      <div class="card tile" data-reveal style="--i:2"><span class="badge" data-glyph="colors"></span><h3>Colors</h3><p class="what">Focus</p></div>
-    </div>
-    <div class="more" data-reveal><a class="pill quiet" href="/how#tests">Watch each test play</a></div>
-  </section>
-
-  <div class="tape pink" aria-hidden="true"><div class="run">
-    <span>Time asleep.</span><span>Regularity.</span><span>Efficiency.</span><span>Alertness.</span>
+  <div class="tape" aria-hidden="true"><div class="run">
+    <span>Sleep on it.</span>
   </div></div>
 
-  <section class="block wrap" id="data" style="padding-top:clamp(70px,11vh,120px)">
-    <div class="facts">
-      <div class="card fact wide" data-reveal><span class="badge" data-glyph="phone"></span>
-        <p><b>Your data stays on your phone</b> unless you join our study and turn sharing on. Settings has an export of your nights, check-ins and test scores. See the <a href="/privacy">privacy policy</a> and <a href="/study">our study</a>.</p></div>
+  <section class="block wrap" style="padding-top:clamp(70px,11vh,120px)">
+    <div class="grid three">
+      <article class="card sell" data-reveal style="--i:0;--accent:var(--sky)">
+        <div class="viz">
+          <p class="v" data-count>6h 34m</p>
+          <div class="bar"><i class="fill"></i><i class="tick" style="left:44.9%"></i><i class="tick" style="left:82.3%"></i></div>
+        </div>
+        <h2 class="display">See your night.</h2>
+        <p>How long you slept, from the phone on your nightstand.</p>
+      </article>
+      <article class="card sell" data-reveal style="--i:1;--accent:var(--yellow)">
+        <div class="viz duo">
+          <p><b data-count>7h 15m</b> you guessed</p><div class="bar"><i class="fill"></i></div>
+          <p style="--accent:var(--sky)"><b data-count>6h 34m</b> measured</p><div class="bar" style="--accent:var(--sky)"><i class="fill" style="width:90.6%"></i></div>
+        </div>
+        <h2 class="display">Know if you were right.</h2>
+        <p>You guess first. Then you see the measured night.</p>
+      </article>
+      <article class="card sell" data-reveal style="--i:2;--accent:var(--mint)">
+        <div class="viz"><div class="stage" data-demo="pvt" aria-hidden="true"></div></div>
+        <h2 class="display">Feel it the next day.</h2>
+        <p>A 30-second test shows how alert you are.</p>
+      </article>
     </div>
   </section>
 
@@ -209,7 +103,7 @@
     <a class="brand" href="/" aria-label="NightStand, home"><span data-sticker="sticker"></span><span class="display">NightStand</span></a>
     <p class="note">NightStand is not a medical device. Its sleep estimates and test scores are not a diagnosis.</p>
   </div>
-  <div><h4>The app</h4><ul><li><a href="/">Home</a></li><li><a href="/how">How it works</a></li></ul></div>
+  <div><h4>The app</h4><ul><li><a href="/">Home</a></li><li><a href="/how">How it works</a></li><li><a href="/why">Why sleep</a></li></ul></div>
   <div><h4>Your data</h4><ul><li><a href="/study">Our study</a></li><li><a href="/privacy">Privacy policy</a></li></ul></div>
   <div><h4>Contact</h4><ul><li><a href="mailto:nicolasgoulartdemoura@gmail.com">nicolasgoulartdemoura@gmail.com</a></li></ul></div>
 </div></footer>
@@ -270,6 +164,6 @@ function squiggle(color) {
   document.querySelector("link[rel=icon]").href = "data:image/svg+xml," + encodeURIComponent(sticker);
 })();
 </script>
-<script src="/a/site.js?v=62a0fdb6eb"></script>
+<script src="/a/site.js?v=86109130ed"></script>
 </body>
 </html>

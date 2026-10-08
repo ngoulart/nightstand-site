@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NightStand: taking part in our study</title>
-<meta name="description" content="For people who received a study code: how to turn sharing on in NightStand, what is sent, and how to stop.">
+<title>NightStand: why sleep</title>
+<meta name="description" content="What research says about the hours and the regularity of sleep, with its sources.">
 <meta name="theme-color" content="#151515">
 <meta property="og:site_name" content="NightStand">
 <meta property="og:type" content="website">
@@ -15,13 +15,13 @@
 <link rel="stylesheet" href="/a/site.css?v=5e44814e59">
 <script>document.documentElement.classList.add("js")</script>
 </head>
-<body data-page="study" data-api="https://mtzppuynickaaeehukqs.supabase.co/functions/v1/motion">
+<body data-page="why" data-api="https://mtzppuynickaaeehukqs.supabase.co/functions/v1/motion">
 <header class="nav wrap">
   <a class="brand" href="/" aria-label="NightStand, home"><span id="sticker"></span><span class="display">NightStand</span></a>
   <nav class="links" id="links" aria-label="Pages">
     <a href="/how">How it works</a>
-    <a href="/why">Why sleep</a>
-    <a href="/study" aria-current="page">Our study</a>
+    <a href="/why" aria-current="page">Why sleep</a>
+    <a href="/study">Our study</a>
     <a href="/privacy">Privacy</a>
   </nav>
   <span class="beta"><i class="dot"></i>In beta</span>
@@ -33,89 +33,43 @@
     <canvas class="halo" aria-hidden="true"></canvas>
     <div class="hero-copy wrap">
       <h1 class="display mega">
-        <span class="line" style="--i:0"><span>Taking part in</span></span>
-        <span class="line" style="--i:1"><span><span class="hl" id="paper">our study</span></span></span>
+        <span class="line" style="--i:0"><span>Why <span class="hl" id="paper">sleep</span></span></span>
       </h1>
-      <p class="lede">We study sleep and phone use. This page is for people who <b>received a study code</b>.</p>
-    </div>
-  </section>
-
-  <section class="block wrap" id="live" hidden>
-    <div class="title"><h2 class="display">The study right now</h2><span class="live-tag"><i class="dot"></i>Live</span></div>
-    <div class="counts">
-      <div class="card count"><span class="odo" data-key="phones_week" role="img"></span><p><b>phones sharing</b>in the last 7 days</p></div>
-      <div class="card count"><span class="odo" data-key="nights" role="img"></span><p><b>mornings</b>with a check-in</p></div>
-      <div class="card count"><span class="odo" data-key="tests" role="img"></span><p><b>tests</b>taken</p></div>
-    </div>
-    <p class="fine">Totals across everyone sharing with our study, refreshed every 30 seconds.</p>
-  </section>
-
-  <section class="block wrap">
-    <div class="title" data-reveal><h2 class="display">Turn sharing on</h2><span data-squiggle="mint"></span></div>
-    <div class="join">
-      <div>
-        <ol class="todo">
-          <li data-reveal style="--i:0"><span class="badge">1</span><span>Open the app's <b>Settings</b> and tap <b>Have a study code?</b></span></li>
-          <li data-reveal style="--i:1"><span class="badge">2</span><span><b>Type the code</b> you were given.</span></li>
-          <li data-reveal style="--i:2"><span class="badge">3</span><span>Turn on <b>Share my data with the study</b>.</span></li>
-        </ol>
-        <p class="sub" data-reveal style="margin:26px 0 0">Today then says <b style="color:var(--ink)">Updated and shared with our study</b>.</p>
-      </div>
-      <div class="card mock" data-reveal="pop" aria-hidden="true">
-        <span class="tag">Our study</span>
-        <p style="margin-top:14px;font-size:15px">If you take part in our study of sleep and phone use, type the code you were given and turn sharing on. Otherwise leave it off.</p>
-        <div class="field"></div>
-        <div class="row"><span>Share my data with the study</span><span class="switch"></span></div>
-        <div class="note-paper"><div class="torn" data-depth="5">
-          <p class="display">All set.</p>
-          <p>Updated and shared with our study. The app keeps recording on its own.</p>
-        </div></div>
-      </div>
+      <p class="lede">What research says. Each card opens its source.</p>
     </div>
   </section>
 
   <section class="block wrap">
-    <div class="title" data-reveal><h2 class="display">Two check-ins a day</h2><span data-squiggle="pink"></span></div>
-    <div class="pair">
-      <div class="card" data-reveal style="--i:0;--accent:var(--lilac)"><span class="badge" data-glyph="moon"></span>
-        <h3>Evening</h3>
-        <p><b>One 30-second test</b> before bed.</p></div>
-      <div class="card" data-reveal style="--i:1;--accent:var(--yellow)"><span class="badge" data-glyph="sun"></span>
-        <h3>Morning</h3>
-        <p><b>About 90 seconds</b>, with a 30-second test. Then you see how you slept. While sharing is on, the test is part of every check-in.</p></div>
-    </div>
-  </section>
-
-  <section class="block wrap">
-    <div class="title" data-reveal><h2 class="display">What leaves your phone</h2><span data-squiggle="sky"></span></div>
-    <div class="pair" style="grid-template-columns:1fr">
-      <div class="card" data-reveal style="--accent:var(--mint)"><span class="badge" data-glyph="check"></span>
-        <h3>Sent while sharing is on</h3>
-        <ul>
-          <li><span>How the phone moves, in <b>30-second summaries</b></span></li>
-          <li><span>The <b>sleep in Health</b>, if an Apple Watch wrote it</span></li>
-          <li><span>Your <b>check-ins</b> and <b>test results</b></span></li>
-          <li><span>When the phone <b>charges, locks and unlocks</b></span></li>
-          <li><span>Your phone's model, iOS version, app version, time zone and language setting</span></li>
-        </ul>
-        <p>Your location, the apps you use and what is on your screen are never sent. The <a href="/privacy">privacy policy</a> has the full list.</p></div>
-    </div>
-    <div class="facts" style="margin-top:14px">
-      <div class="card fact" data-reveal style="--i:0"><span class="badge" data-glyph="arrow"></span>
-        <p><b>Under your study code only.</b> The data go to our study's database over an encrypted connection. Only the study team can read them.</p></div>
-      <div class="card fact" data-reveal style="--i:1"><span class="badge" data-glyph="stop"></span>
-        <p><b>Stopping.</b> Taking part is voluntary. Turn the switch off and the app stops sending at once. Data sent before then may still be analysed.</p></div>
-      <div class="card fact wide" data-reveal><span class="badge" data-glyph="trash"></span>
-        <p><b>Deletion.</b> Write to <a href="mailto:nicolasgoulartdemoura@gmail.com">nicolasgoulartdemoura@gmail.com</a> with your study code and we delete what you shared.</p></div>
+    <div class="grid two">
+      <a class="card why" href="https://doi.org/10.5664/jcsm.4758" rel="noopener" data-reveal style="--i:0;--accent:var(--sky)">
+        <span class="stat">7h+</span>
+        <span class="tag">7 hours or more</span>
+        <p>Sleep medicine societies recommend that adults sleep 7 or more hours a night on a regular basis.</p>
+        <cite>Watson et al. 2015, Journal of Clinical Sleep Medicine</cite></a>
+      <a class="card why" href="https://doi.org/10.1093/sleep/26.2.117" rel="noopener" data-reveal style="--i:1;--accent:var(--yellow)">
+        <span class="stat">2 weeks</span>
+        <span class="tag">Sleep debt adds up</span>
+        <p>Two weeks of 6 hours or less in bed a night hurt thinking as much as up to two sleepless nights, and people seemed largely unaware of it.</p>
+        <cite>Van Dongen et al. 2003, Sleep</cite></a>
+      <a class="card why" href="https://doi.org/10.1093/sleep/zsad253" rel="noopener" data-reveal style="--i:0;--accent:var(--pink)">
+        <span class="stat">61,000</span>
+        <span class="tag">Regular beats long</span>
+        <p>Among about 61,000 UK adults, a regular sleep schedule predicted the risk of death better than how long people slept.</p>
+        <cite>Windred et al. 2024, Sleep</cite></a>
+      <a class="card why" href="https://doi.org/10.1136/oem.57.10.649" rel="noopener" data-reveal style="--i:1;--accent:var(--mint)">
+        <span class="stat">0.05%</span>
+        <span class="tag">Tired like tipsy</span>
+        <p>After 17 to 19 hours awake, people did as badly or worse on some tests as at a 0.05% blood alcohol level.</p>
+        <cite>Williamson and Feyer 2000, Occupational and Environmental Medicine</cite></a>
     </div>
   </section>
 
   <section class="band-wrap wrap" data-reveal>
     <div class="band torn" data-depth="10">
       <div>
-        <h2 class="display">Questions?</h2>
-        <p>Write to us with <b>your study code</b>.</p>
-        <div class="cta"><a class="pill dark" href="mailto:nicolasgoulartdemoura@gmail.com">nicolasgoulartdemoura@gmail.com</a></div>
+        <h2 class="display">Sleep on it.</h2>
+        <p>NightStand is <b>in beta testing</b>.</p>
+        <div class="cta"><a class="pill dark" href="/how">How it works</a></div>
       </div>
       <span data-sticker="big" aria-hidden="true"></span>
     </div>

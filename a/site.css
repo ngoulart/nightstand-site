@@ -196,10 +196,6 @@ section { position:relative; }
 }
 
 /* ---------- film ---------- */
-.film { display:grid; grid-template-columns:minmax(0,1fr) minmax(240px,330px); gap:clamp(28px,6vw,90px); align-items:center; }
-.film h2 { font-size:clamp(34px,5.6vw,70px); }
-.film h2 em { font-style:inherit; color:var(--pink); }
-.film p { margin-top:18px; color:var(--gray); max-width:24em; font-size:clamp(17px,1.7vw,20px); }
 .reel { position:relative; aspect-ratio:9 / 16; border-radius:34px; overflow:hidden; rotate:2.5deg; background:#0c0c0c;
         box-shadow:0 0 0 1px rgba(255,255,255,.16), 0 0 0 7px #0c0c0c, 0 0 0 8px rgba(255,255,255,.14), 0 30px 70px rgba(0,0,0,.6);
         transition:rotate .6s var(--ease); }
@@ -215,7 +211,48 @@ section { position:relative; }
 .play .core { width:76px; height:76px; border-radius:50%; background:var(--yellow); display:grid; place-items:center; box-shadow:0 6px 0 rgba(0,0,0,.35); }
 .play .core svg { width:26px; height:26px; fill:var(--paper-ink); margin-left:4px; }
 @keyframes spin { to { transform:rotate(360deg); } }
-@media (max-width:760px) { .film { grid-template-columns:1fr; text-align:center; } .film p { margin-inline:auto; } .reel { width:min(72vw,300px); margin:10px auto 0; } }
+.sound { position:absolute; left:50%; bottom:5%; translate:-50% 0; display:none; align-items:center; gap:8px; font:800 13.5px var(--body); color:var(--paper-ink);
+         background:var(--yellow); border:0; border-radius:999px; padding:10px 18px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.35); white-space:nowrap; }
+.sound svg { width:10px; height:10px; fill:currentColor; }
+.reel.silent .sound { display:inline-flex; }
+.reel.silent .play { opacity:0; pointer-events:none; }
+
+/* The home page opens on the film: the title beside it, nothing else. */
+.hero.split { text-align:left; }
+.hero.split { padding-bottom:clamp(80px,13vh,150px); }
+.hero.split .hero-copy { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:clamp(24px,6vw,96px); align-items:center; max-width:1040px; }
+.hero.split .mega { font-size:clamp(44px, 7.4vw, 104px); }
+.hero.split .lede { margin-left:0; }
+.hero.split .cta { justify-content:flex-start; }
+.hero.split .reel { width:min(38vw, calc(76svh * 9 / 16)); justify-self:center; }
+.js .hero .reel { opacity:0; animation:fade 1s var(--ease) forwards .45s; }
+@media (max-width:760px) {
+  .hero.split { text-align:center; }
+  .hero.split .hero-copy { grid-template-columns:1fr; }
+  .hero.split .lede { margin-left:auto; }
+  .hero.split .cta { justify-content:center; }
+  .hero.split .reel { width:min(74vw,310px); }
+  .hero.split { padding-bottom:70px; }
+}
+
+/* The three things it does for you: one picture, one title, one line. */
+.sell { padding:22px 22px 26px; transition:transform .45s var(--ease), box-shadow .45s var(--ease); }
+.sell:hover { transform:translateY(-5px) rotate(-.5deg); box-shadow:inset 0 0 0 1px rgba(255,255,255,.18), 0 18px 34px rgba(0,0,0,.4); }
+.sell .viz { height:150px; border-radius:16px; background:var(--page); box-shadow:inset 0 0 0 1px var(--edge); padding:18px; display:flex; flex-direction:column; justify-content:center; gap:12px; }
+.sell .viz .stage { margin:0; height:100%; box-shadow:none; background:none; }
+.sell .v { font:italic 900 46px/1 var(--display); letter-spacing:-.04em; color:var(--accent); font-variant-numeric:tabular-nums; }
+.sell .bar { position:relative; height:16px; background:var(--raised); }
+.sell .bar .fill { position:absolute; inset:0 auto 0 0; width:100%; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform 1.3s var(--ease) .35s; }
+.sell.in .bar .fill, html:not(.js) .sell .bar .fill { transform:none; }
+.sell .bar .tick { position:absolute; top:-4px; bottom:-4px; width:4px; background:var(--pink); opacity:0; transition:opacity .3s 1.5s; }
+.sell.in .bar .tick, html:not(.js) .sell .bar .tick { opacity:1; }
+.sell .duo { gap:7px; }
+.sell .duo p { margin:0; font-size:13.5px; color:var(--gray); }
+.sell .duo b { font:italic 900 24px/1 var(--display); letter-spacing:-.03em; color:var(--accent); margin-right:6px; font-variant-numeric:tabular-nums; }
+.sell .duo .bar { height:12px; margin-bottom:6px; }
+.sell h2 { font-size:clamp(24px,2.7vw,32px); margin-top:22px; }
+.sell > p { margin-top:10px; color:var(--gray); font-size:16.5px; }
+@media (max-width:860px) { .grid.three:has(.sell) { grid-template-columns:1fr; } }
 
 /* ---------- card grids ---------- */
 .grid { display:grid; gap:14px; }

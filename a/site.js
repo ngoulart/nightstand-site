@@ -152,7 +152,10 @@
     run.insertAdjacentHTML("beforeend", run.innerHTML);
   });
 
-  // ---------- the statement: each word lights up as it passes ----------
+  // ---------- words that light up as they pass. Lines that share a parent form ----------
+  // ---------- one sequence, read top to bottom: a line starts only once the one ----------
+  // ---------- above it is fully lit ----------
+  const sequences = new Map();
   $$("[data-words]").forEach((p) => {
     const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
     let html = "";
@@ -161,12 +164,17 @@
       n.textContent.split(/(\s+)/).forEach((tok) => { html += tok.trim() ? `<span class="${cls}">${esc(tok)}</span>` : tok; });
     });
     p.innerHTML = html;
-    const words = $$(".w", p);
-    let lit = -1;
+    if (!sequences.has(p.parentElement)) sequences.set(p.parentElement, []);
+    sequences.get(p.parentElement).push(p);
+  });
+  sequences.forEach((lines) => {
     if (reduce) return;
+    const words = lines.flatMap((p) => $$(".w", p));
+    let lit = -1;
     onScroll(() => {
-      const box = p.getBoundingClientRect(), vh = innerHeight;
-      const n = Math.round(clamp((vh * 0.88 - box.top) / (box.height + vh * 0.4), 0, 1) * words.length);
+      const top = lines[0].getBoundingClientRect().top, bottom = lines[lines.length - 1].getBoundingClientRect().bottom, vh = innerHeight;
+      // From the first line entering the lower part of the screen to the last line reaching its middle.
+      const n = Math.round(clamp((vh * 0.82 - top) / (bottom - top + vh * 0.3), 0, 1) * words.length);
       if (n === lit) return;
       lit = n;
       words.forEach((w, k) => w.classList.toggle("on", k < n));

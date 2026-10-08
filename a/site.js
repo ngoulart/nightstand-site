@@ -188,6 +188,62 @@
     set(0);
   }
 
+  // ---------- the phone that stands up: the scroll through its section is --p ----------
+  $$(".rise").forEach((el) => {
+    if (reduce) return;
+    onScroll(() => {
+      const box = el.getBoundingClientRect();
+      const p = clamp((-box.top / (box.height - innerHeight) - 0.06) / 0.72, 0, 1);
+      el.style.setProperty("--p", (p * p * (3 - 2 * p)).toFixed(4));
+    });
+  });
+
+  // ---------- try: ten seconds of the reaction test. A counter starts after a ----------
+  // ---------- random wait of 1 to 3 seconds; a tap before it counts as too soon ----------
+  const tryIt = $(".try");
+  if (tryIt) {
+    const LENGTH = 10000, pad = $(".pad", tryIt), big = $(".big", tryIt), hint = $(".hint", tryIt), go = $(".go", tryIt), bar = $(".progress i", tryIt);
+    let running = false, t0 = 0, due = 0, shown = 0, hold = 0, raf = 0, times = [];
+    const wait = (now) => { due = now + 1000 + Math.random() * 2000; shown = 0; hold = 0; big.textContent = "0000"; big.className = "big wait"; };
+    const finish = () => {
+      running = false;
+      tryIt.dataset.state = "done";
+      bar.style.transform = "scaleX(1)";
+      go.textContent = "Again";
+      if (!times.length) { big.textContent = "0000"; big.className = "big wait"; hint.textContent = "No tap counted. Tap the moment the counter starts."; return; }
+      const sorted = [...times].sort((a, b) => a - b), mid = sorted.length >> 1;
+      big.textContent = (sorted.length % 2 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2)) + " ms";
+      big.className = "big";
+      hint.innerHTML = `Your median over <b>${times.length} ${times.length === 1 ? "tap" : "taps"}</b>. In the app it takes 30 seconds, set against the night before.`;
+    };
+    const tick = (now) => {
+      if (now - t0 >= LENGTH) return finish();
+      bar.style.transform = `scaleX(${((now - t0) / LENGTH).toFixed(4)})`;
+      if (hold && now >= hold) wait(now);
+      if (!hold && !shown && now >= due) { shown = now; big.className = "big"; }
+      if (shown) big.textContent = String(Math.min(9999, Math.round(now - shown))).padStart(4, "0");
+      raf = requestAnimationFrame(tick);
+    };
+    const tap = (now) => {
+      if (!running || hold) return;
+      if (shown) { const ms = Math.round(now - shown); times.push(ms); big.textContent = ms + " ms"; big.className = "big hit"; }
+      else { big.textContent = "Too soon"; big.className = "big soon"; }
+      shown = 0;
+      hold = now + 750;
+    };
+    go.addEventListener("click", () => {
+      running = true; times = []; t0 = performance.now();
+      tryIt.dataset.state = "run";
+      hint.textContent = "Tap anywhere here the moment the counter starts.";
+      wait(t0);
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(tick);
+      pad.focus({ preventScroll: true });
+    });
+    pad.addEventListener("pointerdown", (e) => { if (running) { e.preventDefault(); tap(performance.now()); } });
+    pad.addEventListener("keydown", (e) => { if (running && (e.code === "Space" || e.code === "Enter")) { e.preventDefault(); tap(performance.now()); } });
+  }
+
   // ---------- the film: it plays silently in a loop while on screen, and ----------
   // ---------- from the start with sound when asked ----------
   const reel = $(".reel");

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NightStand: a sleep health app for iPhone</title>
+<title>NightStand: Sleep on it</title>
 <meta name="description" content="NightStand is a sleep health app for iPhone: see your night, know if you were right about it, and feel it the next day.">
 <meta name="theme-color" content="#151515">
 <meta property="og:site_name" content="NightStand">
@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:ital,wght@0,800;1,800;1,900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/a/site.css?v=5e44814e59">
+<link rel="stylesheet" href="/a/site.css?v=1dd5e4fa1f">
 <script>document.documentElement.classList.add("js")</script>
 </head>
 <body data-page="home" data-api="https://mtzppuynickaaeehukqs.supabase.co/functions/v1/motion">
@@ -39,9 +39,10 @@
           <span class="line" style="--i:2"><span>knows how</span></span>
           <span class="line" style="--i:3"><span>you slept.</span></span>
         </h1>
-        <p class="lede">A <b>sleep health app</b> for iPhone.</p>
+        <p class="lede">A <b>sleep health app</b> for iPhone. <b>Sleep on it.</b></p>
         <div class="cta"><a class="pill" href="/how">How it works</a></div>
       </div>
+      <div class="film-spot">
       <div class="reel" id="film">
         <video playsinline muted loop preload="none" poster="/a/film.jpg?v=063b58fc0a" src="https://mtzppuynickaaeehukqs.supabase.co/storage/v1/object/public/site-media/nightstand_promo_v2.mp4"></video>
         <button class="play" type="button" aria-label="Play the 20-second film">
@@ -52,6 +53,12 @@
           </span>
         </button>
         <button class="sound" type="button"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>Sound on</button>
+      </div>
+      <span class="stamp" aria-hidden="true">
+        <svg class="turn" viewBox="0 0 132 132"><defs><path id="stamp" d="M66 66m-50 0a50 50 0 1 1 100 0a50 50 0 1 1-100 0"/></defs>
+          <text><textPath href="#stamp" textLength="306" lengthAdjust="spacing">Sleep on it &#x2022; Sleep on it &#x2022; </textPath></text></svg>
+        <span data-sticker="moon"></span>
+      </span>
       </div>
     </div>
   </section>
@@ -86,6 +93,47 @@
     </div>
   </section>
 
+  <section class="rise">
+    <div class="rise-stage wrap">
+      <div class="rise-copy">
+        <h2 class="display a">Set it down <em>tonight.</em></h2>
+        <p class="display b">Wake up to <em>your night.</em></p>
+      </div>
+      <div class="rise-rig" aria-hidden="true">
+        <span class="glow"></span>
+        <figure class="phone">
+          <img src="/a/today.jpg?v=823e8fcd69" width="420" height="913" loading="lazy" alt="">
+          <img class="top" src="/a/night.jpg?v=48964bbc7b" width="420" height="913" loading="lazy" alt="">
+        </figure>
+        <span class="zzz"><i>z</i><i>z</i><i>z</i></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block wrap" id="try">
+    <div class="title center" data-reveal><h2 class="display">How alert are you right now?</h2><span data-squiggle="mint"></span></div>
+    <div class="card try" data-state="idle" data-reveal>
+      <div class="progress"><i></i></div>
+      <div class="pad" tabindex="0" role="application" aria-label="Reaction test: tap when the counter starts">
+        <p class="big wait">0000</p>
+        <p class="hint" aria-live="polite">Ten seconds. Tap the moment the counter starts.</p>
+        <button class="pill go" type="button">Start</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="block wrap">
+    <div class="title center" data-reveal><h2 class="display">Night after night</h2><span data-squiggle="sky"></span></div>
+    <div class="fan">
+      <figure class="phone" data-reveal style="--i:0"><img src="/a/streak.jpg?v=7cd9d2a229" width="420" height="913" loading="lazy" alt="Streak: 4 days of check-ins in a row, on a calendar of October.">
+        <figcaption><b>Streak</b></figcaption></figure>
+      <figure class="phone" data-reveal style="--i:1"><img src="/a/today.jpg?v=823e8fcd69" width="420" height="913" loading="lazy" alt="The Today screen: last night lasted 6 hours 34 minutes, from 11:00 PM to 5:41 AM, with two short interruptions.">
+        <figcaption><b>Today</b></figcaption></figure>
+      <figure class="phone" data-reveal style="--i:2"><img src="/a/trends.jpg?v=e0c79620c5" width="420" height="913" loading="lazy" alt="Trends for one week: a bar per night from the time asleep to the time awake.">
+        <figcaption><b>Trends</b></figcaption></figure>
+    </div>
+  </section>
+
   <section class="band-wrap wrap" data-reveal>
     <div class="band torn" data-depth="10">
       <div>
@@ -101,6 +149,7 @@
 <footer class="foot"><div class="wrap cols">
   <div>
     <a class="brand" href="/" aria-label="NightStand, home"><span data-sticker="sticker"></span><span class="display">NightStand</span></a>
+    <p class="display motto">Sleep on it.</p>
     <p class="note">NightStand is not a medical device. Its sleep estimates and test scores are not a diagnosis.</p>
   </div>
   <div><h4>The app</h4><ul><li><a href="/">Home</a></li><li><a href="/how">How it works</a></li><li><a href="/why">Why sleep</a></li></ul></div>
@@ -164,6 +213,6 @@ function squiggle(color) {
   document.querySelector("link[rel=icon]").href = "data:image/svg+xml," + encodeURIComponent(sticker);
 })();
 </script>
-<script src="/a/site.js?v=86109130ed"></script>
+<script src="/a/site.js?v=85f0c2347f"></script>
 </body>
 </html>

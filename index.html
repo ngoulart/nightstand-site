@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NightStand: Sleep on it</title>
-<meta name="description" content="NightStand is a sleep health app for iPhone: see your night, know if you were right about it, and feel it the next day.">
+<meta name="description" content="NightStand is a sleep tracker for iPhone. Leave the phone by your bed and wake up to how long and how well you slept.">
 <meta name="theme-color" content="#151515">
 <meta property="og:site_name" content="NightStand">
 <meta property="og:type" content="website">
@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:ital,wght@0,800;1,800;1,900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/a/site.css?v=1dd5e4fa1f">
+<link rel="stylesheet" href="/a/site.css?v=93d359f3ac">
 <script>document.documentElement.classList.add("js")</script>
 </head>
 <body data-page="home" data-api="https://mtzppuynickaaeehukqs.supabase.co/functions/v1/motion">
@@ -34,21 +34,20 @@
     <div class="hero-copy wrap">
       <div class="pitch">
         <h1 class="display mega">
-          <span class="line" style="--i:0"><span>Your</span></span>
-          <span class="line" style="--i:1"><span><span class="hl" id="paper">nightstand</span></span></span>
-          <span class="line" style="--i:2"><span>knows how</span></span>
-          <span class="line" style="--i:3"><span>you slept.</span></span>
+          <span class="line" style="--i:0"><span>Your <span class="hl" id="paper">nightstand</span></span></span>
+          <span class="line" style="--i:1"><span>knows how</span></span>
+          <span class="line" style="--i:2"><span>you slept.</span></span>
         </h1>
-        <p class="lede">A <b>sleep health app</b> for iPhone. <b>Sleep on it.</b></p>
+        <p class="lede">A <b>sleep tracker</b> for iPhone. Leave the phone by your bed and wake up to <b>how long and how well you slept</b>.</p>
         <div class="cta"><a class="pill" href="/how">How it works</a></div>
       </div>
       <div class="film-spot">
       <div class="reel" id="film">
-        <video playsinline muted loop preload="none" poster="/a/film.jpg?v=063b58fc0a" src="https://mtzppuynickaaeehukqs.supabase.co/storage/v1/object/public/site-media/nightstand_promo_v2.mp4"></video>
-        <button class="play" type="button" aria-label="Play the 20-second film">
+        <video playsinline muted loop preload="none" poster="/a/film.jpg?v=30fbd95a48" src="https://mtzppuynickaaeehukqs.supabase.co/storage/v1/object/public/site-media/nightstand_film_v3_tall.mp4" data-wide-src="https://mtzppuynickaaeehukqs.supabase.co/storage/v1/object/public/site-media/nightstand_film_v3_wide.mp4" data-wide-poster="/a/film_wide.jpg?v=62619fb902"></video>
+        <button class="play" type="button" aria-label="Play the 26-second film">
           <span class="disc">
             <svg class="ring" viewBox="0 0 132 132" aria-hidden="true"><defs><path id="ring" d="M66 66m-54 0a54 54 0 1 1 108 0a54 54 0 1 1-108 0"/></defs>
-              <text><textPath href="#ring">Play the film &#x2022; 20 seconds &#x2022; Sound on &#x2022;</textPath></text></svg>
+              <text><textPath href="#ring">Play the film &#x2022; 26 seconds &#x2022; Sound on &#x2022;</textPath></text></svg>
             <span class="core"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg></span>
           </span>
         </button>
@@ -60,6 +59,13 @@
         <span data-sticker="moon"></span>
       </span>
       </div>
+      <ol class="path">
+        <li style="--accent:var(--yellow)"><span class="tag">Tonight</span>Set it down</li>
+        <li class="to" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></li>
+        <li style="--accent:var(--pink)"><span class="tag">Morning</span>See your night</li>
+        <li class="to" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></li>
+        <li style="--accent:var(--mint)"><span class="tag">Next day</span>Test your alertness</li>
+      </ol>
     </div>
   </section>
 
@@ -67,14 +73,20 @@
     <span>Sleep on it.</span>
   </div></div>
 
-  <section class="block wrap" style="padding-top:clamp(70px,11vh,120px)">
+  <section class="asks wrap">
+    <p class="display" data-words>How long did you sleep <b>last night?</b></p>
+    <p class="display" data-words>Are you <b>sure?</b></p>
+    <p class="display" data-words>Did you feel <b>alert</b> when you woke up?</p>
+  </section>
+
+  <section class="block wrap">
     <div class="grid three">
       <article class="card sell" data-reveal style="--i:0;--accent:var(--sky)">
         <div class="viz">
           <p class="v" data-count>6h 34m</p>
           <div class="bar"><i class="fill"></i><i class="tick" style="left:44.9%"></i><i class="tick" style="left:82.3%"></i></div>
         </div>
-        <h2 class="display">See your night.</h2>
+        <h2 class="display">Your night, measured.</h2>
         <p>How long you slept, from the phone on your nightstand.</p>
       </article>
       <article class="card sell" data-reveal style="--i:1;--accent:var(--yellow)">
@@ -116,6 +128,12 @@
       <div class="progress"><i></i></div>
       <div class="pad" tabindex="0" role="application" aria-label="Reaction test: tap when the counter starts">
         <p class="big wait">0000</p>
+        <div class="meter" hidden>
+          <p class="says" aria-live="polite"></p>
+          <div class="scale"><i class="fill"></i><i class="mid"></i><i class="knob"></i></div>
+          <div class="ends" aria-hidden="true"><span>worse</span><span>average</span><span>better</span></div>
+          <p class="ref">Compared with iPhone users of an online reaction test, Passell et al. 2021.</p>
+        </div>
         <p class="hint" aria-live="polite">Ten seconds. Tap the moment the counter starts.</p>
         <button class="pill go" type="button">Start</button>
       </div>
@@ -213,6 +231,6 @@ function squiggle(color) {
   document.querySelector("link[rel=icon]").href = "data:image/svg+xml," + encodeURIComponent(sticker);
 })();
 </script>
-<script src="/a/site.js?v=85f0c2347f"></script>
+<script src="/a/site.js?v=6f05bd9725"></script>
 </body>
 </html>

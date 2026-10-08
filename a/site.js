@@ -203,6 +203,19 @@
   const tryIt = $(".try");
   if (tryIt) {
     const LENGTH = 10000, pad = $(".pad", tryIt), big = $(".big", tryIt), hint = $(".hint", tryIt), go = $(".go", tryIt), bar = $(".progress i", tryIt);
+    const meter = $(".meter", tryIt), says = $(".says", meter);
+    // The app's comparison (TestNorms.swift): iPhone users of an online simple
+    // reaction time task, Passell et al. 2021, mean of medians 326.05 ms, SD
+    // 56.34, taken as log-normal. Percent of adults a median beats.
+    const erf = (x) => {
+      const t = 1 / (1 + 0.3275911 * Math.abs(x));
+      const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+      return x < 0 ? -y : y;
+    };
+    const beats = (ms) => {
+      const s = Math.sqrt(Math.log(1 + (56.34 / 326.05) ** 2)), m = Math.log(326.05) - s * s / 2;
+      return 100 * (1 - 0.5 * (1 + erf((Math.log(ms) - m) / s / Math.SQRT2)));
+    };
     let running = false, t0 = 0, due = 0, shown = 0, hold = 0, raf = 0, times = [];
     const wait = (now) => { due = now + 1000 + Math.random() * 2000; shown = 0; hold = 0; big.textContent = "0000"; big.className = "big wait"; };
     const finish = () => {
@@ -212,8 +225,15 @@
       go.textContent = "Again";
       if (!times.length) { big.textContent = "0000"; big.className = "big wait"; hint.textContent = "No tap counted. Tap the moment the counter starts."; return; }
       const sorted = [...times].sort((a, b) => a - b), mid = sorted.length >> 1;
-      big.textContent = (sorted.length % 2 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2)) + " ms";
+      const score = sorted.length % 2 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+      big.textContent = score + " ms";
       big.className = "big";
+      const p = beats(score), x = Math.round(p);
+      says.innerHTML = x >= 50 ? `Better than <b>${Math.min(x, 99)}%</b> of adults` : `Worse than <b>${Math.min(100 - x, 99)}%</b> of adults`;
+      meter.style.setProperty("--x", "0%");
+      meter.hidden = false;
+      meter.offsetWidth; // so the marker travels from the left
+      meter.style.setProperty("--x", clamp(p, 1, 99).toFixed(1) + "%");
       hint.innerHTML = `Your median over <b>${times.length} ${times.length === 1 ? "tap" : "taps"}</b>. In the app it takes 30 seconds, set against the night before.`;
     };
     const tick = (now) => {
@@ -233,6 +253,7 @@
     };
     go.addEventListener("click", () => {
       running = true; times = []; t0 = performance.now();
+      meter.hidden = true;
       tryIt.dataset.state = "run";
       hint.textContent = "Tap anywhere here the moment the counter starts.";
       wait(t0);
@@ -249,6 +270,11 @@
   const reel = $(".reel");
   if (reel) {
     const video = $("video", reel);
+    // A computer gets the wide cut, a phone the tall one (the page's own default).
+    if (video.dataset.wideSrc && window.matchMedia("(min-width: 761px)").matches) {
+      video.src = video.dataset.wideSrc; video.poster = video.dataset.widePoster;
+      reel.closest(".hero").classList.add("wide-film");
+    }
     const quiet = () => {
       video.muted = true; video.loop = true; video.controls = false;
       reel.classList.remove("playing");

@@ -310,6 +310,8 @@ section { position:relative; }
 .stamp .turn { position:absolute; inset:0; animation:spin 18s linear infinite; }
 .stamp text { font:italic 900 13.5px var(--display); fill:var(--paper-ink); text-transform:uppercase; }
 .stamp .moon { width:58px; height:58px; position:relative; }
+/* Beside the wide cut the stamp hangs off the lower left corner, clear of the film's caption. */
+.hero.wide-film .stamp { left:-52px; bottom:-56px; }
 .js .hero .film-spot { opacity:0; animation:fade 1s var(--ease) forwards .45s; }
 @media (max-width:760px) {
   .hero.split { text-align:center; }

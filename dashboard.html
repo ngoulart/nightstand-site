@@ -15,7 +15,7 @@
   :root { --page:#151515; --card:#212121; --raised:#2c2c2c; --edge:rgba(255,255,255,.09);
           --ink:#fafaf9; --gray:#a3a3a3; --dim:#6e6e6e; --paper-ink:#151515;
           --yellow:#f6f37a; --pink:#f4a6ee; --mint:#86e5a8; --sky:#aae5ff; --blue:#3d9bff;
-          --none:#353535; --battery:#575757; --rest:#6f8fb3; --grain:none; color-scheme:dark; }
+          --none:#353535; --battery:#575757; --rest:#6f8fb3; --lowpower:#66663f; --grain:none; color-scheme:dark; }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--grain) 0 0/180px 180px repeat, var(--page); color:var(--ink);
          font:15px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -79,6 +79,8 @@
   .legend .row .sl::before { background:var(--blue); } .legend .row .aw::before { background:var(--yellow); } .legend .row .ib::before { background:var(--dim); }
   .legend .row .pl::before { background:var(--mint); } .legend .row .ob::before { background:var(--battery); }
   .legend .row .ph::before { background:var(--rest); } .legend .row .in::before { background:var(--pink); }
+  .legend .row .bl::before { height:2px; border-radius:1px; background:var(--ink); } .legend .row .lp::before { background:var(--lowpower); }
+  .legend .row .b20::before { height:0; border-radius:0; border-top:1px dashed var(--gray); }
   .legend .row .ci::before { width:3px; height:12px; border-radius:1px; background:var(--yellow); }
   .legend .row .tt::before, .totals .dm { width:8px; height:8px; border-radius:1px; background:var(--sky); transform:rotate(45deg); display:inline-block; }
   .legend .row .up::before, .legend .row .upbg::before { width:0; height:0; border-radius:0; background:none; border-left:6px solid transparent; border-right:6px solid transparent; border-top:11px solid var(--mint); }
@@ -92,6 +94,12 @@
   .lane .meta .warn { color:var(--pink); font-weight:700; }
   .lane .meta .ok { color:var(--mint); font-weight:700; }
   .lane .head .remind { margin-left:auto; }
+  .pidbtn { font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer; text-align:left; }
+  .pidbtn:hover { color:var(--yellow); }
+  .pidbtn:focus-visible { outline:2px solid var(--sky); outline-offset:3px; border-radius:6px; }
+  .focusbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:12px 18px; margin-bottom:14px; font-size:13px; color:var(--gray); }
+  .focusbar[hidden], .stats[hidden], .legend .row[hidden] { display:none; }
+  .focusbar b { color:var(--ink); font-size:15px; }
   .strip { position:relative; }
   .strip svg { width:100%; display:block; touch-action:pan-y; cursor:crosshair; }
   .axis { position:relative; height:16px; font-size:11px; color:var(--gray); }
@@ -151,21 +159,27 @@
       <label>Per page <span class="seg" id="per"></span></label>
       <span class="hint" id="pagehint">The figures below count the phones on this page.</span>
     </div>
+    <div class="bar">
+      <label>Show <span class="seg" id="show"></span></label>
+      <span class="hint">Pick what every card shows. Click a participant's code to focus on that card; Esc goes back to all phones.</span>
+    </div>
   </div>
 
+  <div class="card focusbar" id="focusbar" hidden><span>Focused on <b id="focuspid"></b></span><button type="button" class="pill" id="unfocus">&#8592; all phones</button></div>
   <div id="err"></div>
   <div class="stats" id="stats"></div>
 
-  <div class="legend"><span class="t">Three tracks per phone on one clock. Above the movement bar, a triangle marks each upload, a cross a force-quit and a diamond a 1-minute test; a yellow line runs through the tracks at each morning check-in. The charging track takes its events from phones that opted into the background keep-alive and the battery state of every upload from all of them.</span>
+  <div class="legend"><span class="t">The tracks chosen under Show, on one clock. Above the movement bar, a triangle marks each upload, a cross a force-quit and a diamond a 1-minute test; a yellow line runs through the tracks at each morning check-in. The charging track takes its events from phones that opted into the background keep-alive and the battery state of every upload from all of them. The battery track draws the level each upload reported, broken after 3 hours without one.</span>
     <div class="rows">
-      <div class="row"><span class="lab">Movement</span><span class="mv">moving</span><span class="st">still</span><span class="nd">no data</span></div>
-      <div class="row"><span class="lab">Charging</span><span class="pl">plugged in</span><span class="ob">on battery</span><span class="nd">unknown</span></div>
-      <div class="row"><span class="lab">Sleep</span><span class="sl">asleep</span><span class="aw">awake in bed</span><span class="ib">in bed</span><span class="ph">at rest, phone rule</span><span class="in">interruption</span></div>
-      <div class="row"><span class="lab">Marks</span><span class="up">upload after opening the app</span><span class="upbg">upload by itself</span><span class="fq">force-quit</span><span class="ci">morning check-in</span><span class="tt">test</span></div>
+      <div class="row" data-track="movement"><span class="lab">Movement</span><span class="mv">moving</span><span class="st">still</span><span class="nd">no data</span></div>
+      <div class="row" data-track="charging"><span class="lab">Charging</span><span class="pl">plugged in</span><span class="ob">on battery</span><span class="nd">unknown</span></div>
+      <div class="row" data-track="battery"><span class="lab">Battery</span><span class="bl">level</span><span class="lp">Low Power Mode</span><span class="b20">20%</span></div>
+      <div class="row" data-track="sleep"><span class="lab">Sleep</span><span class="sl">asleep</span><span class="aw">awake in bed</span><span class="ib">in bed</span><span class="ph">at rest, phone rule</span><span class="in">interruption</span></div>
+      <div class="row" data-track="marks"><span class="lab">Marks</span><span class="up">upload after opening the app</span><span class="upbg">upload by itself</span><span class="fq">force-quit</span><span class="ci">morning check-in</span><span class="tt">test</span></div>
     </div></div>
   <div id="lanes"></div>
 
-  <div class="note"><b>The phone rule.</b> The page applies the app's rule to each lane's own bins, night by night (6 pm to noon on the phone's clock): a rest is 30 minutes or more of still bins, a minute of movement inside it is ignored, two rests no more than 5 minutes apart with every bin between them recorded are one night, and the night with the most rest counts from two hours up. Efficiency is the rest over the rest plus the interruptions. It needs the 1-minute interval, follows the still threshold above, and reads only the part of a night inside the window. <b>Reading a lane.</b> A recording is armed for 12 hours at every open, so a phone that opened the app at bedtime has a lane that runs to the morning once it opens again. Gray at the right end is normal until the next open or background refresh; gray for a whole night means the recording was not armed or the upload has not come in yet.</div>
+  <div class="note"><b>The phone rule.</b> The page applies the app's rule to each lane's own bins, night by night (6 pm to noon on the phone's clock): a rest is 30 minutes or more of still bins, a minute of movement inside it is ignored, two rests no more than 5 minutes apart with every bin between them recorded are one night, and the night with the most rest counts from two hours up. Efficiency is the rest over the rest plus the interruptions. It needs the 1-minute interval, follows the still threshold above, and reads only the part of a night inside the window. <b>Reading a lane.</b> A recording is armed for 12 hours at every open, so a phone that opened the app at bedtime has a lane that runs to the morning once it opens again. Gray at the right end is normal until the next open or background refresh; gray for a whole night means the recording was not armed or the upload has not come in yet. <b>Keep-alive.</b> It holds while keep-alive uploads come every 5 minutes, and then every lock and unlock is filed. Once iOS ends the app and relaunches it in the background, the keep-alive is lost until the participant opens the app: uploads then come only when a push wakes the phone, every 20 minutes at best.</div>
 </div>
 
 <script>
@@ -173,7 +187,7 @@
 // specks at low alpha on 180 pt, seeded so every load looks the same), the
 // torn edges of the header paper, the moon sticker and the section squiggle.
 const C = {page: "#151515", card: "#212121", raised: "#2c2c2c", ink: "#fafaf9", gray: "#a3a3a3", dim: "#6e6e6e",
-           yellow: "#f6f37a", pink: "#f4a6ee", mint: "#86e5a8", sky: "#aae5ff", blue: "#3d9bff", none: "#353535", battery: "#575757", rest: "#6f8fb3"};
+           yellow: "#f6f37a", pink: "#f4a6ee", mint: "#86e5a8", sky: "#aae5ff", blue: "#3d9bff", none: "#353535", battery: "#575757", rest: "#6f8fb3", lowpower: "#66663f"};
 const ACCENTS = [C.yellow, C.pink, C.mint, C.sky];
 function seeded(a) {
   return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -266,6 +280,18 @@ function squiggle(color) {
   // The phones come a page at a time, in lane order: `per` of them, the last
   // choice remembered, and `page` from 1.
   const view = {live: true, hours: 1, from: 0, to: 0, bin: 60, per: 25, page: 1};
+  // What every card shows (the Show buttons, remembered and carried in the
+  // address as ?show= when not everything), and the one phone in focus
+  // (?focus=, its pid), both read and drawn on this page only.
+  const SHOW = [["marks", "Marks"], ["movement", "Movement"], ["charging", "Charging"], ["battery", "Battery"],
+                ["sleep", "Sleep"], ["totals", "Totals"], ["nights", "Nights"]];
+  const TRACKS = ["marks", "movement", "charging", "battery", "sleep"];
+  {
+    const asked = params.get("show") ?? recall("nsShow");
+    const known = SHOW.map(([k]) => k);
+    view.show = new Set(asked === null ? known : asked.split(",").filter(k => known.includes(k)));
+    view.focus = params.get("focus") || null;
+  }
   const parseWhen = (s) => {
     if (!s) return null;
     const n = Number(s), ms = Number.isFinite(n) ? n * 1000 : Date.parse(s);
@@ -359,6 +385,9 @@ function squiggle(color) {
     q.delete("hours"); q.delete("from"); q.delete("to"); q.delete("bin");
     if (view.live) q.set("hours", String(+view.hours.toFixed(4))); else { q.set("from", toInput(view.from)); q.set("to", toInput(view.to)); }
     q.set("bin", String(view.bin));
+    q.delete("show"); q.delete("focus");
+    if (view.show.size < SHOW.length) q.set("show", SHOW.map(([k]) => k).filter(k => view.show.has(k)).join(","));
+    if (view.focus) q.set("focus", view.focus);
     history.replaceState(null, "", location.pathname + "?" + q.toString());
   }
   // A new window starts at the first page: with silent phones hidden, the
@@ -410,6 +439,8 @@ function squiggle(color) {
       const notes = [];
       if (!ranged && !view.live) notes.push(`This server predates window ranges and answered with the last ${hoursText(data.hours)} instead; deploy the current function and migration.`);
       if (BIN !== view.bin) notes.push(`This server ignores the interval and answered in ${binText(BIN)} bins; deploy the current function and migration.`);
+      const arrivals = data.phones.flatMap(p => p.arrivals || []);
+      if (arrivals.length && !arrivals.some(a => a.length > 4)) notes.push(`This server sends no battery level per upload, so the battery track is empty; push migration 20261014180000_motion_live_battery.`);
       $("err").innerHTML = notes.map(n => `<div class="err">${n}</div>`).join("");
       $("refreshed").textContent = (view.live ? "refreshed " : "loaded ") + new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit", second: "2-digit"});
       render();
@@ -429,6 +460,9 @@ function squiggle(color) {
   // noon on the phone's clock) the chain with the most rest wins, from two
   // hours of rest up. Bins longer than a minute cannot carry it.
   const RULE = {restS: 30 * 60, bridgeS: 5 * 60, breakS: 60, minimumS: 120 * 60, maxBinS: 60};
+  const BATTERY_GAP_S = 3 * 3600;   // the battery line breaks where no reading came for this long
+  const BATTERY_HOLD_S = 3600;      // how long one reading stands for the slots after it
+  const KEEPALIVE = {minGapS: 60, maxGapS: 11 * 60, recentS: 15 * 60};
   const nightKeys = new Map();
   // The night each slot belongs to (the local date of its evening), or null from noon to 18:00.
   function nightOfSlots(tz, since, n) {
@@ -537,7 +571,38 @@ function squiggle(color) {
       charging[i] = cstate; if (cstate === 1) plugged++;
     }
     const hasCharging = anchors.length > 0 || !!p.charging_prev;
-    return {cat, mad, n, mv, st, nd: n - mv - st, since, until, steps, stepsTotal: Math.round(stepsTotal), sleep, asleep, atRest, nights, charging, plugged, hasCharging};
+    // Battery readings [t, level, Low Power Mode] from the uploads and the
+    // charging events (which carry no Low Power Mode). A reading stands for
+    // its slot and the slots after it, up to BATTERY_HOLD_S.
+    const readings = [...(p.arrivals || []).filter(a => a[4] != null).map(a => [a[0], a[4], a[5]]),
+                      ...(p.charging || []).filter(e => e[2] != null).map(e => [e[0], e[2], null])].sort((a, b) => a[0] - b[0]);
+    const level = new Int8Array(n).fill(-1), lowPower = new Uint8Array(n);
+    let kb = 0, lastT = null, lastLevel = -1, lastLow = 0, lowSlots = 0;
+    for (let i = 0; i < n; i++) {
+      const slotEnd = since + (i + 1) * BIN;
+      while (kb < readings.length && readings[kb][0] < slotEnd) {
+        const [t, l, low] = readings[kb++];
+        lastT = t; lastLevel = l;
+        if (low != null) lastLow = low ? 1 : 2;
+      }
+      if (lastT !== null && slotEnd - lastT <= BATTERY_HOLD_S) { level[i] = lastLevel; lowPower[i] = lastLow; if (lastLow === 1) lowSlots++; }
+    }
+    const inWindow = readings.filter(([t]) => t >= since && t <= until);
+    const levels = inWindow.map(([, l]) => l);
+    // The keep-alive holds while keep-alive uploads come 1 to 11 minutes apart
+    // (every 5 minutes and 45 s after a lock; 10 when a pull overran). A phone
+    // that lost it uploads only when a push wakes it, 20 minutes apart, and
+    // its keep-alive timer then fires in the same second as the push.
+    const ka = (p.arrivals || []).filter(a => a[1] === "keepalive" && a[0] >= since && a[0] <= until).map(a => a[0]).sort((a, b) => a - b);
+    let heldS = 0, lastHeld = null;
+    for (let k = 1; k < ka.length; k++) {
+      const gap = ka[k] - ka[k - 1];
+      if (gap >= KEEPALIVE.minGapS && gap <= KEEPALIVE.maxGapS) { heldS += gap; lastHeld = ka[k]; }
+    }
+    const count = (name) => (p.screen || []).filter(([t, e]) => t >= since && t <= until && e === name).length;
+    return {cat, mad, n, mv, st, nd: n - mv - st, since, until, steps, stepsTotal: Math.round(stepsTotal), sleep, asleep, atRest, nights, charging, plugged, hasCharging,
+            readings, level, lowPower, lowSlots, levelMin: levels.length ? Math.min(...levels) : null, levelMax: levels.length ? Math.max(...levels) : null,
+            keepAlive: {uploads: ka.length, heldS, lastHeld}, locks: count("lock"), unlocks: count("unlock"), relaunches: count("launchBackground")};
   }
 
   // What a drawn column shows when there are more slots than columns: the
@@ -558,12 +623,25 @@ function squiggle(color) {
   }
 
   // Track layout in viewBox units, top to bottom: marks, movement bar,
-  // charging bar, sleep bar, tick marks; the labels are HTML below the SVG.
-  const G = {W: 1440, top: 14, h: 44, chgH: 10, sleepH: 12};
-  G.chgTop = G.top + G.h + 6; G.sleepTop = G.chgTop + G.chgH + 6; G.axisBase = G.sleepTop + G.sleepH + 6; G.H = G.axisBase + 8;
+  // charging bar, battery track, sleep bar, tick marks; the labels are HTML
+  // below the SVG. A track left out under Show takes no room, and the card in
+  // focus draws the movement and the battery taller.
+  let G = layout();
+  function layout() {
+    const on = (k) => view.show.has(k), big = !!view.focus;
+    const g = {W: 1440, top: on("marks") ? 14 : 2};
+    let y = g.top;
+    const track = (name, size) => { const height = on(name) ? size : 0, at = y; if (height) y += height + 6; return [at, height]; };
+    [g.top, g.h] = track("movement", big ? 72 : 44);
+    [g.chgTop, g.chgH] = track("charging", 10);
+    [g.batTop, g.batH] = track("battery", big ? 48 : 28);
+    [g.sleepTop, g.sleepH] = track("sleep", 12);
+    g.axisBase = y; g.H = y + 8;
+    return g;
+  }
 
   function strip(p, c) {
-    const {W, top, h, chgTop, chgH, sleepTop, sleepH, axisBase, H} = G;
+    const {W, top, h, chgTop, chgH, batTop, batH, sleepTop, sleepH, axisBase, H} = G;
     const cols = Math.min(c.n, W), span = c.until - c.since;
     const bars = (arr, y, height, colors) => {
       let out = "", i = 0;
@@ -576,38 +654,53 @@ function squiggle(color) {
     };
     const id = "lane" + labels.get(p.pid);
     const clip = (k, y, height) => `<clipPath id="${id}${k}"><rect class="round" data-r="${Math.min(10, height / 2)}" x="0" y="${y}" width="${W}" height="${height}"/></clipPath>`;
-    let rects = `<defs>${clip("m", top, h)}${clip("c", chgTop, chgH)}${clip("s", sleepTop, sleepH)}</defs>`;
-    rects += `<g clip-path="url(#${id}m)">${bars(columns(c.cat, c.n, cols, [2, 1]), top, h, [C.none, C.sky, C.pink])}</g>`;
-    rects += `<g clip-path="url(#${id}c)">${bars(columns(c.charging, c.n, cols, [1, 2]), chgTop, chgH, [C.raised, C.mint, C.battery])}</g>`;
-    rects += `<g clip-path="url(#${id}s)">${bars(columns(c.sleep, c.n, cols, [2, 3, 5, 4, 1]), sleepTop, sleepH, [C.raised, C.dim, C.blue, C.yellow, C.rest, C.pink])}</g>`;
+    let rects = `<defs>${h ? clip("m", top, h) : ""}${chgH ? clip("c", chgTop, chgH) : ""}${batH ? clip("b", batTop, batH) : ""}${sleepH ? clip("s", sleepTop, sleepH) : ""}</defs>`;
+    if (h) rects += `<g clip-path="url(#${id}m)">${bars(columns(c.cat, c.n, cols, [2, 1]), top, h, [C.none, C.sky, C.pink])}</g>`;
+    if (chgH) rects += `<g clip-path="url(#${id}c)">${bars(columns(c.charging, c.n, cols, [1, 2]), chgTop, chgH, [C.raised, C.mint, C.battery])}</g>`;
+    const xOf = (t) => (t - c.since) / span * W;
+    if (batH) {
+      // The battery: Low Power Mode shaded behind the level line, a dashed
+      // guide at 20%, and the line broken where no reading came for 3 hours.
+      const yOf = (l) => (batTop + batH - 3 - l / 100 * (batH - 6)).toFixed(1);
+      let line = "", seg = [], prev = null;
+      const flush = () => { if (seg.length) line += `<polyline points="${seg.length === 1 ? seg.concat(seg).join(" ") : seg.join(" ")}" fill="none" stroke="${C.ink}" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`; seg = []; };
+      for (const [t, l] of c.readings) {
+        if (prev !== null && t - prev > BATTERY_GAP_S) flush();
+        seg.push(`${xOf(t).toFixed(1)},${yOf(l)}`); prev = t;
+      }
+      flush();
+      rects += `<g clip-path="url(#${id}b)">${bars(columns(c.lowPower, c.n, cols, [1, 2]), batTop, batH, [C.raised, C.lowpower, C.raised])}`
+            + `<line x1="0" x2="${W}" y1="${yOf(20)}" y2="${yOf(20)}" stroke="${C.gray}" stroke-opacity=".7" stroke-dasharray="3,3" vector-effect="non-scaling-stroke"/>${line}</g>`;
+    }
+    if (sleepH) rects += `<g clip-path="url(#${id}s)">${bars(columns(c.sleep, c.n, cols, [2, 3, 5, 4, 1]), sleepTop, sleepH, [C.raised, C.dim, C.blue, C.yellow, C.rest, C.pink])}</g>`;
     // Above the movement bar: uploads as triangles (mint = the participant
     // opened the app, gray = background or keep-alive) and a pink cross per
     // force-quit (forceQuit exact; terminated inferred at the next launch,
     // dashed). Marks closer than a viewBox unit share one drawing, the
-    // participant's opens first.
-    const xOf = (t) => (t - c.since) / span * W;
+    // participant's opens first. Left out under Show, none of the marks is drawn.
+    const marks = view.show.has("marks");
     const seen = new Set();
     const mark = (x, html) => { const key = Math.round(x); if (seen.has(key)) return ""; seen.add(key); return html; };
     const opened = ([, trig]) => trig === "open" || trig === "link" || trig === "manual";
-    const arrivals = (p.arrivals || []).filter(([t]) => t >= c.since && t <= c.until);
+    const arrivals = marks ? (p.arrivals || []).filter(([t]) => t >= c.since && t <= c.until) : [];
     for (const a of [...arrivals.filter(opened), ...arrivals.filter(x => !opened(x))]) {
       const x = xOf(a[0]);
       rects += mark(x, `<polygon points="${(x - 5).toFixed(1)},1 ${(x + 5).toFixed(1)},1 ${x.toFixed(1)},${top - 1}" fill="${opened(a) ? C.mint : C.gray}"/>`);
     }
     seen.clear();
-    for (const [t, ev] of (p.screen || [])) {
+    for (const [t, ev] of marks ? (p.screen || []) : []) {
       if (t < c.since || t > c.until || (ev !== "forceQuit" && ev !== "terminated")) continue;
       const x = xOf(t);
       rects += mark(x, `<path d="M${(x - 4).toFixed(1)} 1 L${(x + 4).toFixed(1)} ${top - 3} M${(x + 4).toFixed(1)} 1 L${(x - 4).toFixed(1)} ${top - 3}" stroke="${C.pink}" stroke-width="${ev === "forceQuit" ? 2 : 1.2}" ${ev === "terminated" ? 'stroke-dasharray="2,1.5"' : ""}/>`);
     }
     // A yellow line through the tracks at each morning check-in; a diamond
     // per 1-minute test, yellow for the check-in's own and sky from the Tests tab.
-    for (const ci of (p.checkins || [])) {
+    for (const ci of marks ? (p.checkins || []) : []) {
       if (ci.rated == null || ci.rated < c.since || ci.rated > c.until) continue;
       const x = xOf(ci.rated).toFixed(1);
       rects += `<line x1="${x}" x2="${x}" y1="${top - 4}" y2="${axisBase}" stroke="${C.yellow}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
     }
-    for (const t of (p.tests || [])) {
+    for (const t of marks ? (p.tests || []) : []) {
       if (t.t == null || t.t < c.since || t.t > c.until) continue;
       const x = xOf(t.t);
       rects += `<path d="M${x.toFixed(1)} .5L${(x + 5).toFixed(1)} 7L${x.toFixed(1)} 13.5L${(x - 5).toFixed(1)} 7Z" fill="${t.source === "checkin" ? C.yellow : C.sky}" stroke="${C.page}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
@@ -701,6 +794,13 @@ function squiggle(color) {
     // The page as the server chose it: filtered, in lane order.
     const phones = data.phones, paged = data.total > phones.length;
     syncPager();
+    // A card in focus stands alone: the page's figures and the pager go, and
+    // the focus bar names the phone.
+    G = layout();
+    $("focusbar").hidden = !view.focus; $("focuspid").textContent = view.focus || "";
+    $("stats").hidden = !!view.focus;
+    if (view.focus) $("pager").hidden = true;
+    document.querySelectorAll(".legend .row[data-track]").forEach(r => { r.hidden = !view.show.has(r.dataset.track); });
 
     const active = phones.filter(p => p.uploads_window > 0);
     const armed = phones.filter(p => p.last && p.last.armed_until > now && p.last.accel_available !== false);
@@ -718,8 +818,12 @@ function squiggle(color) {
       <div class="card stat"><div class="k">Checked in ${squiggle(C.blue)}</div><div class="v">${ratedLast.length}</div><div class="d">rated last night, of ${raters.length} phone${raters.length === 1 ? "" : "s"} that ever checked in</div></div>`;
 
     if (!phones.length) { $("lanes").innerHTML = `<div class="empty">No uploads yet.</div>`; return; }
-    $("lanes").innerHTML = phones.map((p, k) => {
-      const c = cls.get(p.pid), L = p.last;
+    const shown = view.focus ? phones.filter(p => p.pid === view.focus) : phones;
+    if (!shown.length) { $("lanes").innerHTML = `<div class="empty">${esc(view.focus)} is not on this page of phones.</div>`; return; }
+    const ref = Math.min(until, now);
+    const when = (t) => localParts(t).day === localParts(ref).day ? fmtTime(t) : fmtDT(t);
+    $("lanes").innerHTML = shown.map((p) => {
+      const k = phones.indexOf(p), c = cls.get(p.pid), L = p.last;
       const stale = now - L.created > 26 * 3600;
       const rec = L.accel_available === false ? `<span class="warn">no accelerometer on this device</span>`
         : L.armed_until > now ? `<span class="ok">recording until ${fmtTime(L.armed_until)}</span>`
@@ -734,20 +838,36 @@ function squiggle(color) {
       // only a phone that registered for notifications can be reached.
       const reminded = p.reminded ? `<span class="meta">reminded <b>${ago(p.reminded[0], now)}</b>${p.reminded[1] ? "" : ` · <span class="warn">not delivered</span>`}</span>` : "";
       const remind = `<button type="button" class="pill remind" data-lane="${labels.get(p.pid)}"${p.push_tokens ? ` title="Send a notification asking to open the app"` : ` disabled title="This phone has not registered for notifications"`}>remind</button>`;
+      // The keep-alive as the uploads show it, not as the last upload claims:
+      // holding when keep-alive uploads came 1 to 11 minutes apart within the
+      // last 15 minutes of the window.
+      const K = c.keepAlive;
+      const keep = K.lastHeld !== null && ref - K.lastHeld <= KEEPALIVE.recentS ? `<span class="ok">keep-alive holding</span>`
+        : K.lastHeld !== null ? `<span class="warn">keep-alive lost since ${when(K.lastHeld)}</span>`
+        : K.uploads || L.keep_alive ? `<span class="warn">keep-alive not holding</span> in this window`
+        : `keep-alive off`;
       const quits = (p.screen || []).filter(([t, e]) => t >= c.since && t <= c.until && (e === "forceQuit" || e === "terminated")).length;
       const sw = (color) => `<i class="sw" style="background:${color}"></i>`;
-      const totals = [`${sw(C.pink)}<b>${mins(c.mv)}</b> moving`, `${sw(C.sky)}<b>${mins(c.st)}</b> still`,
-                      `${sw(C.none)}<b>${mins(c.nd)}</b> no data`, `${sw(C.blue)}<b>${mins(c.asleep)}</b> asleep`];
-      if (quits) totals.push(`<b>${quits}</b> force-quit${quits === 1 ? "" : "s"}`);
-      if (c.hasCharging) totals.push(`${sw(C.mint)}<b>${mins(c.plugged)}</b> plugged in`,
-                                     `<b>${(p.charging || []).filter(([t, e]) => t >= c.since && t <= c.until && e === "pluggedIn").length}</b> plug-ins`);
-      if (c.atRest) totals.splice(4, 0, `${sw(C.rest)}<b>${mins(c.atRest)}</b> at rest by the phone rule`);
-      if (!c.nights) totals.splice(4, 0, `the phone rule needs the 1-minute interval`);
+      // Each total belongs to a part of the card and goes when Show leaves that part out.
+      const totals = [
+        ["movement", `${sw(C.pink)}<b>${mins(c.mv)}</b> moving`], ["movement", `${sw(C.sky)}<b>${mins(c.st)}</b> still`],
+        ["movement", `${sw(C.none)}<b>${mins(c.nd)}</b> no data`], ["sleep", `${sw(C.blue)}<b>${mins(c.asleep)}</b> asleep`]];
+      if (c.atRest) totals.push(["sleep", `${sw(C.rest)}<b>${mins(c.atRest)}</b> at rest by the phone rule`]);
+      if (!c.nights) totals.push(["sleep", `the phone rule needs the 1-minute interval`]);
+      if (c.hasCharging) totals.push(["charging", `${sw(C.mint)}<b>${mins(c.plugged)}</b> plugged in`],
+                                     ["charging", `<b>${(p.charging || []).filter(([t, e]) => t >= c.since && t <= c.until && e === "pluggedIn").length}</b> plug-ins`]);
+      if (c.levelMin !== null) totals.push(["battery", `battery <b>${c.levelMin === c.levelMax ? `${c.levelMin}%` : `${c.levelMin}% to ${c.levelMax}%`}</b>`]);
+      if (c.lowSlots) totals.push(["battery", `${sw(C.lowpower)}<b>${mins(c.lowSlots)}</b> Low Power Mode`]);
+      if (K.uploads) totals.push(["marks", `<b>${hm(K.heldS / 60)}</b> keep-alive held`]);
+      totals.push(["marks", `<b>${c.locks}</b> lock${c.locks === 1 ? "" : "s"}, <b>${c.unlocks}</b> unlock${c.unlocks === 1 ? "" : "s"}`]);
+      if (c.relaunches) totals.push(["marks", `<b>${c.relaunches}</b> background relaunch${c.relaunches === 1 ? "" : "es"}`]);
+      if (quits) totals.push(["marks", `<b>${quits}</b> force-quit${quits === 1 ? "" : "s"}`]);
       for (const kind of Object.keys(TEST_NAMES)) {
         const runs = (p.tests || []).filter(t => t.test === kind && t.completed && t.score != null);
-        if (runs.length) totals.push(`<i class="dm"></i><b>${testScore(runs[runs.length - 1])}</b> ${TEST_NAMES[kind]}${runs.length > 1 ? `, latest of ${runs.length} runs` : ""}`);
+        if (runs.length) totals.push(["marks", `<i class="dm"></i><b>${testScore(runs[runs.length - 1])}</b> ${TEST_NAMES[kind]}${runs.length > 1 ? `, latest of ${runs.length} runs` : ""}`]);
       }
-      totals.push(`last bin ${c.mv + c.st ? fmtDT(p.bins[p.bins.length - 1][0]) : "none in window"}`);
+      totals.push(["movement", `last bin ${c.mv + c.st ? fmtDT(p.bins[p.bins.length - 1][0]) : "none in window"}`]);
+      const shownTotals = totals.filter(([part]) => view.show.has(part)).map(([, html]) => html);
       // One row per night of the window: the night by the phone rule, and
       // the check-in (the rating and the guess, given before the app showed
       // the night, beside what it then showed).
@@ -767,17 +887,22 @@ function squiggle(color) {
             + `<td${ci.skipped ? ` class="muted"` : ""}>${ci.skipped ? "skipped" : run ? testScore(run) : ""}</td>`;
         return `<tr><td>${nightLabel(key)}</td>${ruleCells}${ciCells}</tr>`;
       }).join("");
-      const table = rows ? `<div class="nights-wrap"><table class="nights"><tr><th>Night</th><th>At rest (rule)</th><th>From, to</th><th>Interruptions</th><th>Efficiency</th><th>Rating</th><th>Own guess</th><th>App showed</th><th>Guess minus shown</th><th>Reaction test</th></tr>${rows}</table></div>` : "";
-      return `<div class="card lane">
-        <div class="head"><span class="pid display">${esc(p.pid)} ${squiggle(ACCENTS[k % ACCENTS.length])}</span>
+      // In focus the header adds what the server knows of the phone itself.
+      const errors = (L.errors || []).map(e => esc(typeof e === "string" ? e : JSON.stringify(e)));
+      const details = !view.focus ? "" : `<span class="meta">time zone ${esc(L.time_zone || "unknown")} · ${p.push_tokens} push token${p.push_tokens === 1 ? "" : "s"}${errors.length ? ` · last errors: ${errors.join("; ")}` : ""}</span>`;
+      const hasStrip = TRACKS.some(t => view.show.has(t));
+      const table = rows && view.show.has("nights") ? `<div class="nights-wrap"><table class="nights"><tr><th>Night</th><th>At rest (rule)</th><th>From, to</th><th>Interruptions</th><th>Efficiency</th><th>Rating</th><th>Own guess</th><th>App showed</th><th>Guess minus shown</th><th>Reaction test</th></tr>${rows}</table></div>` : "";
+      return `<div class="card lane" id="card${labels.get(p.pid)}">
+        <div class="head"><button type="button" class="pid display pidbtn" data-lane="${labels.get(p.pid)}" title="${view.focus ? "Back to all phones" : "Focus on this phone"}">${esc(p.pid)} ${squiggle(ACCENTS[k % ACCENTS.length])}</button>
           <span class="meta">last upload <b class="${stale ? "warn" : ""}">${ago(L.created, now)}</b> (${fmtDT(L.created)}, ${L.trigger || "v1.0"})${errs}</span>
-          <span class="meta">${rec}${L.keep_alive ? ` · <span class="ok">keep-alive on</span>` : ""}${bat}</span>
+          <span class="meta">${rec} · ${keep}${bat}</span>
           ${checkin}${reminded}
           <span class="meta">${p.uploads_window} upload${p.uploads_window === 1 ? "" : "s"} in window · ${p.uploads} total · v${L.app_version || "?"} · ${L.model || ""} · code <b>${p.receipt}</b></span>
+          ${details}
           ${remind}
         </div>
-        <div class="strip">${strip(p, c)}</div>
-        <div class="totals">${totals.map(t => `<span>${t}</span>`).join("")}</div>${table}
+        ${hasStrip ? `<div class="strip">${strip(p, c)}</div>` : ""}
+        ${view.show.has("totals") && shownTotals.length ? `<div class="totals">${shownTotals.map(t => `<span>${t}</span>`).join("")}</div>` : ""}${table}
       </div>`;
     }).join("");
     wire();
@@ -810,7 +935,8 @@ function squiggle(color) {
         const tts = (p.tests || []).filter(t => near(t.t)).map(t => `${TEST_NAMES[t.test]} test ${testScore(t)}${t.completed ? "" : " (cut short)"}`);
         const all = [...ups, ...evs, ...chg, ...cis, ...tts];
         const marks = all.length ? " · " + all.join(", ") : "";
-        const sl = ["", " · plugged in", " · on battery"][c.charging[i]] + ["", " · in bed", " · asleep", " · awake", " · at rest (phone rule)", " · interruption (phone rule)"][c.sleep[i]] + marks;
+        const battery = c.level[i] >= 0 ? ` · battery ${c.level[i]}%${c.lowPower[i] === 1 ? ", Low Power Mode" : ""}` : "";
+        const sl = ["", " · plugged in", " · on battery"][c.charging[i]] + battery + ["", " · in bed", " · asleep", " · awake", " · at rest (phone rule)", " · interruption (phone rule)"][c.sleep[i]] + marks;
         tip.textContent = `${fmtDT(t)} (${binText(BIN)} bin) · ${label}${sl}`;
         tip.style.left = x + "px"; tip.style.top = "0px"; tip.style.display = "block";
       });
@@ -849,6 +975,37 @@ function squiggle(color) {
       $("err").innerHTML = `<div class="err">Reminder to ${esc(p.pid)} not sent: ${e.message}.</div>`;
     }
   });
+  // Focus: a click on a participant's code shows that card alone, drawn
+  // taller; a second click, the focus bar's button or Esc brings every card
+  // back and scrolls to the one that was in focus.
+  function setFocus(pid) {
+    const was = view.focus;
+    view.focus = pid; syncControls(); render();
+    if (pid) window.scrollTo({top: $("focusbar").getBoundingClientRect().top + window.scrollY - 12});
+    else if (was) {
+      const p = data && data.phones.find(q => q.pid === was), el = p && document.getElementById("card" + labels.get(p.pid));
+      if (el) el.scrollIntoView({block: "start"});
+    }
+  }
+  $("lanes").addEventListener("click", (ev) => {
+    const b = ev.target.closest("button.pidbtn");
+    if (!b) return;
+    const p = data.phones.find(q => labels.get(q.pid) === b.dataset.lane);
+    if (p) setFocus(view.focus === p.pid ? null : p.pid);
+  });
+  $("unfocus").addEventListener("click", () => setFocus(null));
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && view.focus) setFocus(null); });
+  // Show: each button adds or removes one part of every card.
+  $("show").innerHTML = SHOW.map(([k, label]) => `<button type="button" data-v="${k}" aria-pressed="false">${label}</button>`).join("");
+  const syncShow = () => $("show").querySelectorAll("button").forEach(b => { const on = view.show.has(b.dataset.v); b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); });
+  $("show").addEventListener("click", (ev) => {
+    const b = ev.target.closest("button");
+    if (!b) return;
+    if (view.show.has(b.dataset.v)) view.show.delete(b.dataset.v); else view.show.add(b.dataset.v);
+    remember("nsShow", SHOW.map(([k]) => k).filter(k => view.show.has(k)).join(","));
+    syncShow(); syncControls(); render();
+  });
+  syncShow();
   $("thr").addEventListener("input", render);
   $("hidesilent").addEventListener("change", () => { view.page = 1; load(); });
   $("prevpage").addEventListener("click", () => { view.page--; load(); });

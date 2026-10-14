@@ -147,7 +147,7 @@
     </div>
     <div class="bar" id="pager" hidden>
       <span id="pagetxt"></span>
-      <span class="nav"><button class="pill" id="prevpage" title="The phones before these, by lane number">&#8592; previous</button><button class="pill" id="nextpage" title="The phones after these, by lane number">next &#8594;</button></span>
+      <span class="nav"><button class="pill" id="prevpage" title="The phones before these">&#8592; previous</button><button class="pill" id="nextpage" title="The phones after these">next &#8594;</button></span>
       <label>Per page <span class="seg" id="per"></span></label>
       <span class="hint" id="pagehint">The figures below count the phones on this page.</span>
     </div>
@@ -245,11 +245,13 @@ function squiggle(color) {
   const nowS = () => Math.floor(Date.now() / 1000);
   const recall = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
   const remember = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const esc = (s) => String(s).replace(/[&<>"]/g, ch => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;"})[ch]);
 
-  // A lane shows a six-digit number, not the participant's ID. The server
+  // A lane is headed by the participant's ID (the pid, as typed or from the
+  // study link). Behind it each phone keeps a six-digit number: the server
   // sends it as `lane` (HMAC of the pid under the upload token, see
-  // laneLabels in the function), so the number is the same in every browser
-  // and the page never holds the upload token.
+  // laneLabels in the function) and orders the pages by it, and the page uses
+  // it for element ids and lookups, where a typed pid could break the markup.
   let labels = new Map();
   function assignLabels(phones) {
     const next = new Map();
@@ -767,7 +769,7 @@ function squiggle(color) {
       }).join("");
       const table = rows ? `<div class="nights-wrap"><table class="nights"><tr><th>Night</th><th>At rest (rule)</th><th>From, to</th><th>Interruptions</th><th>Efficiency</th><th>Rating</th><th>Own guess</th><th>App showed</th><th>Guess minus shown</th><th>Reaction test</th></tr>${rows}</table></div>` : "";
       return `<div class="card lane">
-        <div class="head"><span class="pid display">${labels.get(p.pid)} ${squiggle(ACCENTS[k % ACCENTS.length])}</span>
+        <div class="head"><span class="pid display">${esc(p.pid)} ${squiggle(ACCENTS[k % ACCENTS.length])}</span>
           <span class="meta">last upload <b class="${stale ? "warn" : ""}">${ago(L.created, now)}</b> (${fmtDT(L.created)}, ${L.trigger || "v1.0"})${errs}</span>
           <span class="meta">${rec}${L.keep_alive ? ` · <span class="ok">keep-alive on</span>` : ""}${bat}</span>
           ${checkin}${reminded}
@@ -835,7 +837,7 @@ function squiggle(color) {
     const b = ev.target.closest("button.remind");
     if (!b || b.disabled) return;
     const lane = b.dataset.lane, p = data.phones.find(q => labels.get(q.pid) === lane);
-    if (!p || !confirm(`Send phone ${lane} a notification asking to open the app?`)) return;
+    if (!p || !confirm(`Send ${p.pid} a notification asking to open the app?`)) return;
     b.disabled = true; b.textContent = "sending";
     try {
       const r = await fetch(`${API}/remind`, {method: "POST", headers: {"authorization": `Bearer ${TOKEN}`, "content-type": "application/json"}, body: JSON.stringify({pid: p.pid})});
@@ -844,7 +846,7 @@ function squiggle(color) {
       await load();
     } catch (e) {
       b.disabled = false; b.textContent = "remind";
-      $("err").innerHTML = `<div class="err">Reminder to ${lane} not sent: ${e.message}.</div>`;
+      $("err").innerHTML = `<div class="err">Reminder to ${esc(p.pid)} not sent: ${e.message}.</div>`;
     }
   });
   $("thr").addEventListener("input", render);

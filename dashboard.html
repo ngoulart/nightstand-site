@@ -144,6 +144,7 @@
       <span id="refreshed"></span>
       <label>Still threshold <input type="range" id="thr" min="0.001" max="0.03" step="0.001" value="0.005"> <b id="thrv">0.005 g</b></label>
       <label class="toggle"><input type="checkbox" id="hidesilent" checked><span class="sw"></span>hide phones silent for 3+ days</label>
+      <label class="toggle"><input type="checkbox" id="showtest"><span class="sw"></span>show test phones and simulators</label>
     </div>
     <div class="bar">
       <label>Window <span class="seg" id="hours"></span></label>
@@ -266,10 +267,17 @@ function squiggle(color) {
   // sends it as `lane` (HMAC of the pid under the upload token, see
   // laneLabels in the function) and orders the pages by it, and the page uses
   // it for element ids and lookups, where a typed pid could break the markup.
+  // Test phones and simulators get no number from the server, so the page
+  // gives them one from a hash of the pid, with a "t" that keeps it apart.
   let labels = new Map();
+  const testLabel = (pid) => {
+    let h = 2166136261;
+    for (const ch of pid) h = Math.imul(h ^ ch.codePointAt(0), 16777619) >>> 0;
+    return "t" + h.toString(16);
+  };
   function assignLabels(phones) {
     const next = new Map();
-    for (const p of phones) next.set(p.pid, p.lane);
+    for (const p of phones) next.set(p.pid, p.lane ?? testLabel(p.pid));
     return next;
   }
 
@@ -291,6 +299,9 @@ function squiggle(color) {
     const known = SHOW.map(([k]) => k);
     view.show = new Set(asked === null ? known : asked.split(",").filter(k => known.includes(k)));
     view.focus = params.get("focus") || null;
+    // Test phones (pids starting with TEST) and simulators are left out
+    // unless asked for, here or by ?test=1 in the address.
+    $("showtest").checked = (params.get("test") ?? recall("nsTest")) === "1";
   }
   const parseWhen = (s) => {
     if (!s) return null;
@@ -385,9 +396,10 @@ function squiggle(color) {
     q.delete("hours"); q.delete("from"); q.delete("to"); q.delete("bin");
     if (view.live) q.set("hours", String(+view.hours.toFixed(4))); else { q.set("from", toInput(view.from)); q.set("to", toInput(view.to)); }
     q.set("bin", String(view.bin));
-    q.delete("show"); q.delete("focus");
+    q.delete("show"); q.delete("focus"); q.delete("test");
     if (view.show.size < SHOW.length) q.set("show", SHOW.map(([k]) => k).filter(k => view.show.has(k)).join(","));
     if (view.focus) q.set("focus", view.focus);
+    if ($("showtest").checked) q.set("test", "1");
     history.replaceState(null, "", location.pathname + "?" + q.toString());
   }
   // A new window starts at the first page: with silent phones hidden, the
@@ -412,10 +424,11 @@ function squiggle(color) {
     else { q.set("from", String(view.from)); q.set("to", String(view.to)); }
     q.set("bin", String(view.bin));
     // One page of phones, chosen by the server so every page is full: without
-    // the test phones and the simulators (real), in lane order, and without
-    // the silent ones while that switch is on.
+    // the test phones and the simulators (real) unless that switch is on, in
+    // lane order (test phones last), and without the silent ones while that
+    // switch is on.
     q.set("per", String(view.per)); q.set("page", String(view.page));
-    q.set("real", "1"); q.set("order", "lane");
+    q.set("real", $("showtest").checked ? "0" : "1"); q.set("order", "lane");
     if ($("hidesilent").checked) q.set("silent", "0");
     return q.toString();
   }
@@ -1008,6 +1021,10 @@ function squiggle(color) {
   syncShow();
   $("thr").addEventListener("input", render);
   $("hidesilent").addEventListener("change", () => { view.page = 1; load(); });
+  $("showtest").addEventListener("change", () => {
+    remember("nsTest", $("showtest").checked ? "1" : "0");
+    view.page = 1; syncControls(); load();
+  });
   $("prevpage").addEventListener("click", () => { view.page--; load(); });
   $("nextpage").addEventListener("click", () => { view.page++; load(); });
   buildSeg("per", PER_PAGE.map(n => [n, String(n)]), (v) => {
